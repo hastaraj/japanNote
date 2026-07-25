@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>hastaraj japanNote</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Noto+Sans+Devanagari:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EFE7D3;
+    --paper-2:#F8F3E5;
+    --card:#FBF8EF;
+    --ink:#292420;
+    --ink-soft:#736A5E;
+    --ink-faint:#A79C89;
+    --line:#DED2B3;
+    --seal:#AE3529;
+    --seal-dark:#8A2A20;
+    --seal-bg:#F5E2DD;
+    --gold:#B9862E;
+    --gold-bg:#F3E6C9;
+    --moss:#4C7955;
+    --moss-bg:#E4EDDD;
+    --shadow: 0 3px 0 var(--line);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    background-image:
+      radial-gradient(circle at 20% 15%, rgba(174,53,41,0.05), transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(76,121,85,0.05), transparent 45%);
+    font-family:'Zen Kaku Gothic New','Inter',sans-serif;
+    color:var(--ink);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{ max-width:480px; margin:0 auto; min-height:100vh; padding:18px 18px 40px; display:flex; flex-direction:column; }
+  .nepali{ font-family:'Noto Sans Devanagari','Zen Kaku Gothic New',sans-serif; }
+  button{ font-family:inherit; cursor:pointer; }
+  .btn-primary{
+    background:var(--seal); color:#F9EFE9; border:none; border-radius:16px;
+    padding:16px 20px; font-size:17px; font-weight:700; box-shadow:0 4px 0 var(--seal-dark);
+    transition:transform .05s ease;
+  }
+  .btn-primary:active{ transform:translateY(3px); box-shadow:0 1px 0 var(--seal-dark); }
+  .btn-primary:disabled{ opacity:.5; }
+  .btn-ghost{
+    background:transparent; border:1.5px solid var(--line); color:var(--ink-soft);
+    border-radius:16px; padding:14px 20px; font-size:15px; font-weight:500; width:100%;
+  }
+
+  /* screens */
+  .screen{ display:none; flex-direction:column; flex:1; }
+  .screen.active{ display:flex; }
+
+  .brand-mark{
+    width:64px;height:64px;border-radius:50%; background:var(--seal);
+    display:flex;align-items:center;justify-content:center; color:#F9EFE9;
+    font-family:'Shippori Mincho',serif;font-size:26px;font-weight:700; margin:0 auto 18px;
+    box-shadow:0 3px 0 var(--seal-dark);
+  }
+  .title-lg{ font-family:'Shippori Mincho',serif; font-size:28px; font-weight:700; text-align:center; margin:0 0 4px; }
+  .sub{ text-align:center; color:var(--ink-soft); font-size:13px; margin:0 0 22px; }
+
+  /* course select */
+  .course-card{
+    display:flex; align-items:center; gap:14px; background:var(--card);
+    border:1px solid var(--line); border-radius:16px; padding:16px; margin-bottom:12px;
+  }
+  .course-icon{
+    width:46px;height:46px;border-radius:23px;background:var(--seal-bg);
+    display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:var(--seal);
+    flex-shrink:0;
+  }
+  .course-title{ font-size:16px; font-weight:700; }
+  .course-sub{ font-size:12.5px; color:var(--ink-soft); margin-top:1px; }
+  .course-meta{ font-size:11.5px; color:var(--ink-faint); margin-top:4px; }
+  .chevron{ font-size:22px; color:var(--ink-faint); }
+
+  /* home */
+  .top-row{ display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+  .course-switch{ background:none; border:none; color:var(--ink-soft); font-weight:600; font-size:13.5px; padding:6px 4px; }
+  .stat-row{ display:flex; gap:10px; margin-bottom:16px; }
+  .stat-card{ flex:1; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px 10px; text-align:center; }
+  .stat-num{ font-size:20px; font-weight:700; font-family:'Shippori Mincho',serif; }
+  .stat-label{ font-size:11px; color:var(--ink-soft); margin-top:2px; }
+  .stat-card.mastered .stat-num{ color:var(--moss); }
+  .stat-card.learning .stat-num{ color:var(--gold); }
+  .stat-card.new .stat-num{ color:var(--seal); }
+
+  .section-label{ font-size:13px; color:var(--ink-soft); font-weight:600; margin:14px 0 8px; }
+  .mode-opt{
+    display:flex; align-items:center; gap:10px; background:var(--card); border:1.5px solid var(--line);
+    border-radius:14px; padding:12px; margin-bottom:8px;
+  }
+  .mode-opt.active{ border-color:var(--seal); background:var(--seal-bg); }
+  .radio{ width:16px;height:16px;border-radius:8px;border:1.5px solid var(--ink-faint); flex-shrink:0; }
+  .mode-opt.active .radio{ border-color:var(--seal); background:var(--seal); }
+  .mode-opt-text{ font-size:13.5px; }
+
+  .level-card{
+    display:flex; align-items:center; gap:12px; background:var(--card); border:1px solid var(--line);
+    border-radius:14px; padding:14px; margin-bottom:9px; text-align:left; width:100%;
+  }
+  .level-card:disabled{ opacity:.5; }
+  .level-badge{
+    width:38px;height:38px;border-radius:19px;background:var(--gold-bg);
+    display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--gold); flex-shrink:0;
+  }
+  .level-badge.cleared{ background:var(--moss-bg); color:var(--moss); }
+  .level-info{ flex:1; min-width:0; }
+  .level-title{ font-size:14.5px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .level-sub{ font-size:12px; color:var(--ink-soft); margin-top:1px; }
+  .lock-icon{ font-size:15px; }
+
+  /* quiz */
+  .topbar{ display:flex; align-items:center; gap:10px; }
+  .close-btn{
+    width:34px;height:34px;border-radius:17px;border:1px solid var(--line); background:var(--card);
+    color:var(--ink-soft); font-size:16px; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .progress-track{ flex:1; height:12px; background:var(--card); border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+  .progress-fill{ height:100%; width:0%; background:linear-gradient(90deg, var(--gold), var(--seal)); border-radius:8px; transition:width .35s ease; }
+  .count-pill{ font-size:12.5px; font-weight:600; color:var(--ink-soft); background:var(--card); border:1px solid var(--line); border-radius:10px; padding:6px 10px; white-space:nowrap; }
+  .streak-pill{ font-size:12.5px; font-weight:700; color:var(--gold); background:var(--gold-bg); border-radius:10px; padding:6px 10px; white-space:nowrap; }
+
+  .kanji-stage{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; min-height:200px; padding:16px 0; }
+  .kanji-tag{ font-size:13px; color:var(--ink-faint); margin-bottom:10px; text-align:center; }
+  .kanji-big{ font-family:'Shippori Mincho',serif; font-weight:700; font-size:clamp(48px, 15vw, 76px); line-height:1.1; text-align:center; }
+  .kanji-underline{ width:56px; height:3px; background:var(--seal); border-radius:2px; margin-top:14px; opacity:.55; }
+
+  .qa-stage{ flex:1; display:flex; flex-direction:column; justify-content:center; position:relative; padding:12px 0; }
+  .qa-card{ background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px; min-height:90px; display:flex; align-items:center; }
+  .qa-question{ font-size:17px; line-height:1.55; font-weight:600; }
+
+  .stamp{
+    position:absolute; top:6px; right:4px; width:68px; height:68px; border-radius:50%;
+    border:3.5px solid var(--seal); color:var(--seal); display:flex; align-items:center; justify-content:center;
+    font-family:'Shippori Mincho',serif; font-weight:800; font-size:22px;
+    transform:rotate(-14deg) scale(0); opacity:0;
+  }
+  .stamp.wrong{ border-color:var(--ink-soft); color:var(--ink-soft); }
+  .stamp.show{ animation:stampIn .4s cubic-bezier(.2,1.4,.4,1) forwards; }
+  @keyframes stampIn{ 0%{transform:rotate(-14deg) scale(2.2);opacity:0;} 60%{transform:rotate(-14deg) scale(.92);opacity:1;} 100%{transform:rotate(-14deg) scale(1);opacity:1;} }
+
+  .options{ display:flex; flex-direction:column; gap:11px; margin-top:8px; }
+  .opt-btn{
+    background:var(--card); border:1.5px solid var(--line); border-radius:14px; padding:16px 18px;
+    font-size:18px; font-weight:600; text-align:center; box-shadow:var(--shadow); transition:transform .05s ease;
+  }
+  .opt-btn.qa{ text-align:left; font-size:14px; line-height:1.4; font-weight:500; padding:13px 16px; }
+  .opt-btn:active{ transform:translateY(2px); }
+  .opt-btn.correct{ background:var(--moss-bg); border-color:var(--moss); color:#2E4C36; }
+  .opt-btn.wrong{ background:var(--seal-bg); border-color:var(--seal); color:var(--seal-dark); }
+  .opt-btn.dim{ opacity:.45; }
+  .opt-btn[disabled]{ pointer-events:none; }
+  .opt-btn.small{ font-size:14px; }
+
+  .idk-btn{
+    margin-top:14px; background:var(--paper-2); border:1.5px solid var(--line); border-radius:14px;
+    padding:15px 18px; font-size:15px; font-weight:600; color:var(--ink-soft); text-align:center;
+  }
+
+  .feedback{
+    position:fixed; left:0; right:0; bottom:0; background:var(--card); border-top:2px solid var(--line);
+    border-radius:20px 20px 0 0; padding:20px 22px 22px; box-shadow:0 -6px 18px rgba(41,36,32,.10);
+    transform:translateY(105%); transition:transform .3s cubic-bezier(.25,1,.4,1); max-width:480px; margin:0 auto;
+  }
+  .feedback.show{ transform:translateY(0); }
+  .fb-head{ display:flex; align-items:center; gap:10px; margin-bottom:4px; }
+  .fb-icon{ width:28px;height:28px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px; flex-shrink:0; }
+  .fb-icon.ok{ background:var(--moss); color:#F3F8EF; }
+  .fb-icon.no{ background:var(--seal); color:#F9EFE9; }
+  .fb-title{ font-weight:700; font-size:15px; }
+  .fb-title.ok{ color:var(--moss); }
+  .fb-title.no{ color:var(--seal-dark); }
+  .fb-reading{ font-size:20px; font-family:'Shippori Mincho',serif; margin:10px 0 4px; font-weight:700; }
+  .fb-meaning{ font-size:14px; color:var(--ink-soft); margin-bottom:16px; line-height:1.5; }
+
+  /* result */
+  .result-ring{
+    width:128px; height:128px; border-radius:50%; margin:20px auto 16px; border-width:8px; border-style:solid;
+    display:flex; align-items:center; justify-content:center; flex-direction:column;
+  }
+  .result-ring b{ font-size:28px; font-family:'Shippori Mincho',serif; }
+  .result-ring span{ font-size:12px; color:var(--ink-soft); }
+  .result-title{ text-align:center; font-family:'Shippori Mincho',serif; font-size:22px; font-weight:700; margin:0 0 6px; }
+  .result-sub{ text-align:center; color:var(--ink-soft); font-size:14px; margin-bottom:20px; }
+  .unlock-card{ background:var(--gold-bg); border-radius:16px; padding:16px; margin-bottom:18px; }
+  .unlock-card.unlocked{ background:var(--moss-bg); }
+  .unlock-title{ font-weight:700; font-size:15px; margin-bottom:4px; }
+  .unlock-sub{ font-size:13px; color:var(--ink-soft); margin-bottom:0; }
+  .miss-label{ font-size:12px; color:var(--ink-faint); font-weight:600; margin-bottom:8px; }
+  .miss-item{ display:flex; align-items:center; justify-content:space-between; gap:10px; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:11px 14px; margin-bottom:8px; }
+  .miss-kanji{ font-family:'Shippori Mincho',serif; font-size:19px; font-weight:700; min-width:56px; }
+  .miss-reading{ font-size:12.5px; color:var(--ink-soft); }
+  .miss-meaning{ font-size:12px; color:var(--ink-faint); text-align:right; flex:1; }
+  .miss-qa{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; margin-bottom:8px; }
+  .miss-qa-q{ font-size:13px; font-weight:700; margin-bottom:4px; line-height:1.4; }
+  .miss-qa-a{ font-size:12.5px; color:var(--ink-soft); line-height:1.4; }
+  .footer-buttons{ margin-top:auto; padding-top:14px; }
+  .footer-buttons .btn-primary{ width:100%; margin-bottom:10px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- COURSE SELECT -->
+  <div class="screen" id="screen-courseSelect">
+    <div class="brand-mark">学</div>
+    <h1 class="title-lg">कुन Course पढ्ने?</h1>
+    <p class="sub">तह वा विषय अनुसार छान्नुहोस्</p>
+    <div id="courseList"></div>
+  </div>
+
+  <!-- HOME -->
+  <div class="screen" id="screen-home">
+    <div class="top-row">
+      <button class="course-switch" id="btnChangeCourse">‹ Course</button>
+    </div>
+    <div class="brand-mark" id="homeBrandMark">語</div>
+    <h1 class="title-lg" id="homeTitle">N1 漢字帳</h1>
+    <p class="sub" id="homeSub">JLPT N1 · 189 वाक्यांश</p>
+
+    <div class="stat-row">
+      <div class="stat-card mastered"><div class="stat-num" id="statMastered">0</div><div class="stat-label">राम्रो जानेको</div></div>
+      <div class="stat-card learning"><div class="stat-num" id="statLearning">0</div><div class="stat-label">सिकिरहेको</div></div>
+      <div class="stat-card new"><div class="stat-num" id="statNew">0</div><div class="stat-label">नयाँ</div></div>
+    </div>
+
+    <div id="modeSection">
+      <div class="section-label">प्रश्न कसरी सोध्ने?</div>
+      <div id="modeList"></div>
+    </div>
+
+    <div class="section-label">तहहरू (Levels)</div>
+    <div id="levelList"></div>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="screen" id="screen-quiz">
+    <div class="topbar">
+      <button class="close-btn" id="btnQuitQuiz">✕</button>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="count-pill" id="countPill">1/10</div>
+      <div class="streak-pill">🔥 <span id="streakNum">0</span></div>
+    </div>
+
+    <div class="kanji-stage" id="vocabStage" style="display:none;">
+      <div class="kanji-tag" id="kanjiTag"></div>
+      <div class="kanji-big" id="kanjiBig"></div>
+      <div class="kanji-underline"></div>
+      <div class="stamp" id="stamp1">合</div>
+    </div>
+
+    <div class="qa-stage" id="qaStage" style="display:none;">
+      <div class="kanji-tag">सही उत्तर छान्नुहोस्</div>
+      <div class="qa-card"><div class="qa-question" id="qaQuestion"></div></div>
+      <div class="stamp" id="stamp2">合</div>
+    </div>
+
+    <div class="options" id="optionsWrap"></div>
+    <button class="idk-btn" id="btnIdk">？ थाहा छैन / I don't know</button>
+  </div>
+
+  <!-- RESULT -->
+  <div class="screen" id="screen-result">
+    <div style="flex:1; overflow-y:auto;">
+      <div class="result-ring" id="resultRing"><b id="resultPct">0%</b><span id="resultFrac">0/10</span></div>
+      <h2 class="result-title" id="resultTitle">राम्रो प्रयास!</h2>
+      <p class="result-sub" id="resultSub"></p>
+      <div id="unlockWrap"></div>
+      <div id="missWrap"></div>
+    </div>
+    <div class="footer-buttons">
+      <button class="btn-primary" id="btnRetry">यो तह फेरि खेल्नुहोस्</button>
+      <button class="btn-ghost" id="btnResultHome">गृहपृष्ठमा फर्कनुहोस्</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="feedback" id="feedback">
+  <div class="fb-head">
+    <div class="fb-icon" id="fbIcon">✓</div>
+    <div class="fb-title" id="fbTitle">ठीक छ!</div>
+  </div>
+  <div class="fb-reading" id="fbReading"></div>
+  <div class="fb-meaning nepali" id="fbMeaning"></div>
+  <button class="btn-primary" id="btnNext" style="width:100%;">जारी राख्नुहोस्</button>
+</div>
+
+<script>
+const N1_KANJI_RAW = [{"term":"案の定","reading":"あんのじょう","meaning":"सोचेजस्तै, अपेक्षा गरेअनुसार"},{"term":"場合","reading":"ばあい","meaning":"अवस्था, परिस्थिति"},{"term":"羽目","reading":"はめ","meaning":"अप्रिय अवस्था, परिस्थितिमा पर्नु"},{"term":"限り","reading":"かぎり","meaning":"सीमा, हद"},{"term":"可能性","reading":"かのうせい","meaning":"सम्भावना"},{"term":"極まる","reading":"きわまる","meaning":"अत्यन्त हुनु"},{"term":"極まりない","reading":"きわまりない","meaning":"अत्यन्त, अत्यधिक"},{"term":"極めて","reading":"きわめて","meaning":"धेरै, अत्यन्त"},{"term":"嫌い","reading":"きらい","meaning":"प्रवृत्ति, झुकाव"},{"term":"事","reading":"こと","meaning":"कुरा, विषय"},{"term":"事柄","reading":"ことがら","meaning":"विषयवस्तु"},{"term":"未だに","reading":"いまだに","meaning":"अहिलेसम्म, अझै पनि"},{"term":"予め","reading":"あらかじめ","meaning":"पहिले नै"},{"term":"如何なる","reading":"いかなる","meaning":"जुनसुकै, कुनै पनि"},{"term":"何しろ","reading":"なにしろ","meaning":"जे भए पनि, आखिर"},{"term":"何れにせよ","reading":"いずれにせよ","meaning":"जेसुकै भए पनि"},{"term":"言わせる","reading":"いわせる","meaning":"भन्न लगाउनु"},{"term":"掛かる","reading":"かかる","meaning":"निर्भर हुनु"},{"term":"堪える","reading":"たえる","meaning":"सहनु"},{"term":"値する","reading":"あたいする","meaning":"योग्य हुनु"},{"term":"足る","reading":"たる","meaning":"पर्याप्त हुनु"},{"term":"照らす","reading":"てらす","meaning":"तुलना गर्नु, आधार मान्नु"},{"term":"則る","reading":"のっとる","meaning":"अनुसार चल्नु"},{"term":"先駆ける","reading":"さきがける","meaning":"अग्रणी हुनु"},{"term":"即する","reading":"そくする","meaning":"अनुरूप हुनु"},{"term":"留まる","reading":"とどまる","meaning":"सीमित हुनु"},{"term":"依らず","reading":"よらず","meaning":"नभनी, सम्बन्ध नराखी"},{"term":"顧みる","reading":"かえりみる","meaning":"विचार गर्नु, ध्यान दिनु"},{"term":"兼ねる","reading":"かねる","meaning":"एकैसाथ गर्नु"},{"term":"皮切り","reading":"かわきり","meaning":"सुरुवात"},{"term":"機","reading":"き","meaning":"अवसर"},{"term":"余儀なくされる","reading":"よぎなくされる","meaning":"बाध्य हुनु"},{"term":"踏まえる","reading":"ふまえる","meaning":"आधार लिनु"},{"term":"経る","reading":"へる","meaning":"पार गर्नु, बित्नु"},{"term":"禁じ得ない","reading":"きんじえない","meaning":"रोक्न नसक्नु"},{"term":"思い","reading":"おもい","meaning":"भावना"},{"term":"折","reading":"おり","meaning":"अवसर, बेला"},{"term":"始末","reading":"しまつ","meaning":"अन्ततः, अन्तिम अवस्था"},{"term":"敢えて","reading":"あえて","meaning":"जानाजानी, साहस गरेर"},{"term":"飽くまでも","reading":"あくまでも","meaning":"अन्तिमसम्म, पूर्ण रूपमा"},{"term":"早い","reading":"はやい","meaning":"छिटो"},{"term":"最後","reading":"さいご","meaning":"अन्तिम"},{"term":"一つ","reading":"ひとつ","meaning":"एउटा"},{"term":"他","reading":"ほか","meaning":"अन्य"},{"term":"如何に","reading":"いかに","meaning":"कसरी, कति"},{"term":"如何にも","reading":"いかにも","meaning":"वास्तवमै, निश्चय नै"},{"term":"否","reading":"いな","meaning":"होइन"},{"term":"片傍ら","reading":"かたわら","meaning":"एकातिर, साथै"},{"term":"嘗て","reading":"かつて","meaning":"पहिले, कुनै समय"},{"term":"切っての","reading":"きっての","meaning":"सबैभन्दा प्रसिद्ध"},{"term":"事如く","reading":"ことごとく","meaning":"सबै, पूर्ण रूपमा"},{"term":"事無しに","reading":"ことなしに","meaning":"नगरी"},{"term":"事とて","reading":"こととて","meaning":"किनभने"},{"term":"位","reading":"くらい","meaning":"जति, स्तर"},{"term":"儘","reading":"まま","meaning":"जसरी छ त्यसरी"},{"term":"真みれ","reading":"まみれ","meaning":"ले भरिएको"},{"term":"無し","reading":"なし","meaning":"बिना"},{"term":"成り","reading":"なり","meaning":"बित्तिकै"},{"term":"当たらない","reading":"あたらない","meaning":"योग्य नहुनु"},{"term":"至る","reading":"いたる","meaning":"पुग्नु"},{"term":"難くない","reading":"かたくない","meaning":"गाह्रो नहुनु"},{"term":"纏わる","reading":"まつわる","meaning":"सम्बन्धित हुनु"},{"term":"程","reading":"ほど","meaning":"सीमा, हद"},{"term":"増して","reading":"まして","meaning":"झन् बढी"},{"term":"堪えない","reading":"たえない","meaning":"सहन नसकिने"},{"term":"足りる","reading":"たりる","meaning":"पुग्नु"},{"term":"足りない","reading":"たりない","meaning":"नपुग्नु"},{"term":"及ばない","reading":"およばない","meaning":"आवश्यक नहुनु"},{"term":"至り","reading":"いたり","meaning":"चरम अवस्था"},{"term":"極み","reading":"きわみ","meaning":"चरम, पराकाष्ठा"},{"term":"良い事","reading":"いいこと","meaning":"फाइदा उठाउने कुरा"},{"term":"凡そ","reading":"およそ","meaning":"लगभग, सामान्यतया"},{"term":"流石","reading":"さすが","meaning":"वास्तवमै, अपेक्षाअनुसार"},{"term":"相まって","reading":"あいまって","meaning":"मिलेर, संयुक्त रूपमा"},{"term":"一体","reading":"いったい","meaning":"आखिर, वास्तवमा"},{"term":"見られる","reading":"みられる","meaning":"देखिनु, मानिनु"},{"term":"見るや","reading":"みるや","meaning":"देख्नेबित्तिकै"},{"term":"特に","reading":"とくに","meaning":"विशेष गरी"},{"term":"咄嗟","reading":"とっさ","meaning":"एक्कासि, तुरुन्त"},{"term":"冗談","reading":"じょうだん","meaning":"ठट्टा"},{"term":"思いきや","reading":"おもいきや","meaning":"सोचेको थिएँ तर"},{"term":"取り分け","reading":"とりわけ","meaning":"विशेष गरी"},{"term":"一人","reading":"ひとり","meaning":"एक जना"},{"term":"誰一人","reading":"だれひとり","meaning":"एक जना पनि"},{"term":"一瞬","reading":"いっしゅん","meaning":"एक क्षण"},{"term":"一度","reading":"いちど","meaning":"एक पटक"},{"term":"子供","reading":"こども","meaning":"बच्चा"},{"term":"動物","reading":"どうぶつ","meaning":"जनावर"},{"term":"命","reading":"いのち","meaning":"जीवन"},{"term":"信じる","reading":"しんじる","meaning":"विश्वास गर्नु"},{"term":"勝つ","reading":"かつ","meaning":"जित्नु"},{"term":"理解","reading":"りかい","meaning":"बुझाइ"},{"term":"払う","reading":"はらう","meaning":"तिर्नु"},{"term":"愛","reading":"あい","meaning":"प्रेम"},{"term":"人生","reading":"じんせい","meaning":"जीवन"},{"term":"幸せ","reading":"しあわせ","meaning":"खुशी"},{"term":"文化","reading":"ぶんか","meaning":"संस्कृति"},{"term":"礼儀","reading":"れいぎ","meaning":"शिष्टाचार"},{"term":"品質","reading":"ひんしつ","meaning":"गुणस्तर"},{"term":"昼","reading":"ひる","meaning":"दिन"},{"term":"夜","reading":"よる","meaning":"रात"},{"term":"休日","reading":"きゅうじつ","meaning":"बिदाको दिन"},{"term":"平日","reading":"へいじつ","meaning":"कार्यदिन"},{"term":"人気","reading":"にんき","meaning":"लोकप्रियता"},{"term":"世界中","reading":"せかいじゅう","meaning":"संसारभर"},{"term":"息子","reading":"むすこ","meaning":"छोरा"},{"term":"約束","reading":"やくそく","meaning":"वाचा"},{"term":"守る","reading":"まもる","meaning":"पालना गर्नु"},{"term":"文句","reading":"もんく","meaning":"गुनासो"},{"term":"天気","reading":"てんき","meaning":"मौसम"},{"term":"最悪","reading":"さいあく","meaning":"सबैभन्दा खराब"},{"term":"優しい","reading":"やさしい","meaning":"दयालु"},{"term":"頑固","reading":"がんこ","meaning":"जिद्दी"},{"term":"飽きる","reading":"あきる","meaning":"दिक्क लाग्नु"},{"term":"変","reading":"へん","meaning":"अनौठो"},{"term":"煙","reading":"けむり","meaning":"धुवाँ"},{"term":"火事","reading":"かじ","meaning":"आगलागी"},{"term":"名前","reading":"なまえ","meaning":"नाम"},{"term":"安心","reading":"あんしん","meaning":"ढुक्क, निश्चिन्त"},{"term":"誤解","reading":"ごかい","meaning":"गलतफहमी"},{"term":"基礎","reading":"きそ","meaning":"आधार, आधारभूत ज्ञान"},{"term":"景気","reading":"けいき","meaning":"अर्थतन्त्र"},{"term":"被害","reading":"ひがい","meaning":"क्षति, नोक्सानी"},{"term":"犯人","reading":"はんにん","meaning":"अपराधी"},{"term":"逃走","reading":"とうそう","meaning":"भाग्नु, फरार हुनु"},{"term":"答案","reading":"とうあん","meaning":"उत्तरपत्रिका"},{"term":"社会人","reading":"しゃかいじん","meaning":"कामकाजी व्यक्ति"},{"term":"責任","reading":"せきにん","meaning":"जिम्मेवारी"},{"term":"不合格","reading":"ふごうかく","meaning":"असफल, फेल"},{"term":"優秀","reading":"ゆうしゅう","meaning":"उत्कृष्ट"},{"term":"天才","reading":"てんさい","meaning":"प्रतिभाशाली"},{"term":"不明","reading":"ふめい","meaning":"अज्ञात"},{"term":"判断","reading":"はんだん","meaning":"निर्णय"},{"term":"緊張","reading":"きんちょう","meaning":"तनाव"},{"term":"不安","reading":"ふあん","meaning":"चिन्ता"},{"term":"予算","reading":"よさん","meaning":"बजेट"},{"term":"信頼","reading":"しんらい","meaning":"विश्वास"},{"term":"複雑","reading":"ふくざつ","meaning":"जटिल"},{"term":"悔しい","reading":"くやしい","meaning":"पछुतो लाग्ने"},{"term":"恥ずかしい","reading":"はずかしい","meaning":"लाज लाग्ने"},{"term":"寂しい","reading":"さびしい","meaning":"एक्लो, सुनसान"},{"term":"忙しい","reading":"いそがしい","meaning":"व्यस्त"},{"term":"驚く","reading":"おどろく","meaning":"अचम्म मान्नु"},{"term":"呆れる","reading":"あきれる","meaning":"दिक्क लाग्नु"},{"term":"静か","reading":"しずか","meaning":"शान्त"},{"term":"経験","reading":"けいけん","meaning":"अनुभव"},{"term":"完成","reading":"かんせい","meaning":"सम्पूर्ण हुनु"},{"term":"参加者","reading":"さんかしゃ","meaning":"सहभागी"},{"term":"駅","reading":"えき","meaning":"स्टेशन"},{"term":"徒歩","reading":"とほ","meaning":"पैदल"},{"term":"合格率","reading":"ごうかくりつ","meaning":"उत्तीर्ण दर"},{"term":"教育","reading":"きょういく","meaning":"शिक्षा"},{"term":"未来","reading":"みらい","meaning":"भविष्य"},{"term":"得る","reading":"える","meaning":"प्राप्त गर्नु"},{"term":"努力","reading":"どりょく","meaning":"मेहनत"},{"term":"成功","reading":"せいこう","meaning":"सफलता"},{"term":"上達","reading":"じょうたつ","meaning":"सीपमा सुधार"},{"term":"原因","reading":"げんいん","meaning":"कारण"},{"term":"回復","reading":"かいふく","meaning":"पुनः सुधार, रिकभरी"},{"term":"様子","reading":"ようす","meaning":"अवस्था, स्थिति"},{"term":"傾向","reading":"けいこう","meaning":"प्रवृत्ति, झुकाव"},{"term":"現状","reading":"げんじょう","meaning":"हालको अवस्था"},{"term":"状況","reading":"じょうきょう","meaning":"परिस्थिति"},{"term":"現実","reading":"げんじつ","meaning":"वास्तविकता"},{"term":"理想","reading":"りそう","meaning":"आदर्श"},{"term":"価値","reading":"かち","meaning":"मूल्य"},{"term":"評価","reading":"ひょうか","meaning":"मूल्याङ्कन"},{"term":"判断力","reading":"はんだんりょく","meaning":"निर्णय क्षमता"},{"term":"知識","reading":"ちしき","meaning":"ज्ञान"},{"term":"技術","reading":"ぎじゅつ","meaning":"प्रविधि, सीप"},{"term":"能力","reading":"のうりょく","meaning":"क्षमता"},{"term":"実力","reading":"じつりょく","meaning":"वास्तविक क्षमता"},{"term":"結果","reading":"けっか","meaning":"नतिजा"},{"term":"目的","reading":"もくてき","meaning":"उद्देश्य"},{"term":"手段","reading":"しゅだん","meaning":"साधन, उपाय"},{"term":"機会","reading":"きかい","meaning":"अवसर"},{"term":"課題","reading":"かだい","meaning":"चुनौती, कार्य"},{"term":"問題","reading":"もんだい","meaning":"समस्या"},{"term":"解決","reading":"かいけつ","meaning":"समाधान"},{"term":"環境","reading":"かんきょう","meaning":"वातावरण"},{"term":"影響","reading":"えいきょう","meaning":"प्रभाव"},{"term":"存在","reading":"そんざい","meaning":"अस्तित्व"},{"term":"現象","reading":"げんしょう","meaning":"घटना, phenomenon"},{"term":"理論","reading":"りろん","meaning":"सिद्धान्त"},{"term":"概念","reading":"がいねん","meaning":"अवधारणा"},{"term":"抽象","reading":"ちゅうしょう","meaning":"अमूर्त"},{"term":"具体的","reading":"ぐたいてき","meaning":"ठोस, स्पष्ट"},{"term":"曖昧","reading":"あいまい","meaning":"अस्पष्ट"},{"term":"明確","reading":"めいかく","meaning":"स्पष्ट"}];
+const SSW2_PAGES_RAW = [{"title":"पृष्ठ १ — शीर्षक / परिचय / खण्ड १ (खाद्यसामग्री) (भाग 1)","words":[{"term":"外食業","reading":"がいしょくぎょう","meaning":"रेस्टुरेन्ट/खानेकुरा व्यवसाय"},{"term":"特定技能","reading":"とくていぎのう","meaning":"विशेष सीप (भिसा प्रकार)"},{"term":"技能測定試験","reading":"ぎのうそくていしけん","meaning":"सीप परीक्षण परीक्षा"},{"term":"学習テキスト","reading":"がくしゅうテキスト","meaning":"अध्ययन पाठ्यपुस्तक"},{"term":"飲食物調理","reading":"いんしょくぶつちょうり","meaning":"खानेकुरा तयारी/पकाउने काम"},{"term":"日本フードサービス協会","reading":"にほんフードサービスきょうかい","meaning":"जापान फुड सर्भिस संघ"},{"term":"専門的","reading":"せんもんてき","meaning":"विशेषज्ञ/प्राविधिक"},{"term":"知識","reading":"ちしき","meaning":"ज्ञान"},{"term":"厨房","reading":"ちゅうぼう","meaning":"भान्सा/किचन"},{"term":"判断","reading":"はんだん","meaning":"निर्णय"},{"term":"適切","reading":"てきせつ","meaning":"उपयुक्त"},{"term":"対応","reading":"たいおう","meaning":"व्यवहार गर्नु/जवाफ दिनु"},{"term":"分野","reading":"ぶんや","meaning":"क्षेत्र"},{"term":"食材","reading":"しょくざい","meaning":"खाद्यसामग्री"},{"term":"原材料","reading":"げんざいりょう","meaning":"कच्चा सामग्री"},{"term":"肉類","reading":"にくるい","meaning":"मासुजन्य वस्तु"},{"term":"魚介類","reading":"ぎょかいるい","meaning":"माछा तथा समुद्री खाद्य"},{"term":"野菜","reading":"やさい","meaning":"तरकारी"},{"term":"果実類","reading":"かじつるい","meaning":"फलफूल"}]},{"title":"पृष्ठ १ — शीर्षक / परिचय / खण्ड १ (खाद्यसामग्री) (भाग 2)","words":[{"term":"国産食材","reading":"こくさんしょくざい","meaning":"स्वदेशी (जापानमै उत्पादित) खाद्यसामग्री"},{"term":"下処理","reading":"したしょり","meaning":"पूर्व-तयारी (काट्नु, धुनु आदि)"},{"term":"調理方法","reading":"ちょうりほうほう","meaning":"पकाउने तरिका"},{"term":"加熱調理","reading":"かねつちょうり","meaning":"तताएर पकाउने विधि"},{"term":"非加熱調理","reading":"ひかねつちょうり","meaning":"नतताई पकाउने विधि"},{"term":"調理計画","reading":"ちょうりけいかく","meaning":"पकाउने योजना"},{"term":"調理機器","reading":"ちょうりきき","meaning":"पकाउने उपकरण"},{"term":"器具","reading":"きぐ","meaning":"साधन/औजार"},{"term":"備品","reading":"びひん","meaning":"सामान/उपकरण"},{"term":"計測機器類","reading":"けいそくききるい","meaning":"नाप्ने उपकरणहरू"},{"term":"労働安全衛生","reading":"ろうどうあんぜんえいせい","meaning":"श्रम सुरक्षा तथा स्वास्थ्य"},{"term":"発生状況","reading":"はっせいじょうきょう","meaning":"घटना हुने अवस्था"},{"term":"労働安全管理","reading":"ろうどうあんぜんかんり","meaning":"श्रम सुरक्षा व्यवस्थापन"},{"term":"危険","reading":"きけん","meaning":"खतरा"},{"term":"見える化","reading":"みえるか","meaning":"देखिने बनाउनु (दृश्यात्मक बनाउनु)"},{"term":"防止策","reading":"ぼうしさく","meaning":"रोकथामको उपाय"},{"term":"食品の流通","reading":"しょくひんのりゅうつう","meaning":"खाद्य वितरण प्रणाली"},{"term":"食品添加物","reading":"しょくひんてんかぶつ","meaning":"खाद्य मिसावट पदार्थ (एडिटिभ)"},{"term":"基本用語","reading":"きほんようご","meaning":"आधारभूत शब्दावली"}]},{"title":"पृष्ठ १ (जारी) — मासुबारे (भाग 1)","words":[{"term":"主な種類","reading":"おもなしゅるい","meaning":"मुख्य प्रकारहरू"},{"term":"牛肉","reading":"ぎゅうにく","meaning":"गाईको मासु"},{"term":"部位","reading":"ぶい","meaning":"शरीरको भाग/अंश"},{"term":"名称","reading":"めいしょう","meaning":"नाम"},{"term":"社団法人","reading":"しゃだんほうじん","meaning":"सामाजिक संस्था (कानूनी संगठन)"},{"term":"格付協会","reading":"かくづけきょうかい","meaning":"ग्रेडिङ संघ"},{"term":"部分肉取引規格","reading":"ぶぶんにくとりひききかく","meaning":"अंश-मासु व्यापार मापदण्ड"},{"term":"濃厚","reading":"のうこう","meaning":"गाढा/बलियो (स्वाद)"},{"term":"豚肉","reading":"ぶたにく","meaning":"सुँगुरको मासु"},{"term":"月齢","reading":"げつれい","meaning":"महिनाको उमेर"},{"term":"脂肪分","reading":"しぼうぶん","meaning":"बोसो/चिल्लो अंश"},{"term":"肉質","reading":"にくしつ","meaning":"मासुको गुणस्तर"},{"term":"均一","reading":"きんいつ","meaning":"एकरूप"},{"term":"鶏肉","reading":"とりにく","meaning":"कुखुराको मासु"},{"term":"農林水産省","reading":"のうりんすいさんしょう","meaning":"कृषि, वन र मत्स्यपालन मन्त्रालय"},{"term":"食鶏小売規格","reading":"しょっけいこうりきかく","meaning":"खुद्रा कुखुरा मासु मापदण्ड"},{"term":"地鶏","reading":"じどり","meaning":"स्थानीय (देशी) कुखुरा"},{"term":"淡白","reading":"たんぱく","meaning":"सादा/हल्का स्वाद"},{"term":"保存","reading":"ほぞん","meaning":"भण्डारण/सुरक्षित राख्नु"}]},{"title":"पृष्ठ १ (जारी) — मासुबारे (भाग 2)","words":[{"term":"死後硬直","reading":"しごこうちょく","meaning":"मृत्युपछिको कडापन (rigor mortis)"},{"term":"熟成","reading":"じゅくせい","meaning":"पकाइ/परिपक्वता (एजिङ)"},{"term":"軟化","reading":"なんか","meaning":"नरम हुनु"},{"term":"タンパク質","reading":"タンパクしつ","meaning":"प्रोटिन"},{"term":"変性","reading":"へんせい","meaning":"गुण परिवर्तन (denaturation)"},{"term":"肉汁","reading":"にくじゅう","meaning":"मासुको रस"},{"term":"筋","reading":"すじ","meaning":"नसा/तन्तु"},{"term":"コラーゲン","reading":"コラーゲン","meaning":"कोलाजेन"},{"term":"分解","reading":"ぶんかい","meaning":"विघटन"},{"term":"鮮度","reading":"せんど","meaning":"ताजापन"},{"term":"見分け方","reading":"みわけかた","meaning":"चिन्ने तरिका"},{"term":"赤身","reading":"あかみ","meaning":"दुब्लो/रातो मासु"},{"term":"脂身","reading":"あぶらみ","meaning":"बोसो भएको भाग"},{"term":"境目","reading":"さかいめ","meaning":"सीमारेखा"},{"term":"弾力","reading":"だんりょく","meaning":"लचकता"},{"term":"冷蔵庫","reading":"れいぞうこ","meaning":"फ्रिज"},{"term":"冷凍","reading":"れいとう","meaning":"फ्रिज गरिएको/जमेको"},{"term":"緩慢解凍","reading":"かんまんかいとう","meaning":"बिस्तारै पगाल्नु"},{"term":"汚染","reading":"おせん","meaning":"प्रदूषण/दूषित हुनु"}]},{"title":"पृष्ठ २ — माछा/समुद्री खाद्य (भाग 1)","words":[{"term":"貝類","reading":"かいるい","meaning":"शंख/सीप जातीय"},{"term":"エビ","reading":"エビ","meaning":"झिंगा"},{"term":"カニ","reading":"カニ","meaning":"केकडा"},{"term":"食用水産生物","reading":"しょくようすいさんせいぶつ","meaning":"खान मिल्ने जलीय जीव"},{"term":"総称","reading":"そうしょう","meaning":"साझा नाम"},{"term":"旬","reading":"しゅん","meaning":"मौसम अनुसारको उत्तम समय"},{"term":"脂ののった","reading":"あぶらののった","meaning":"चिल्लोपन भरिएको"},{"term":"包丁","reading":"ほうちょう","meaning":"चक्कु"},{"term":"うろこ","reading":"うろこ","meaning":"माछाको खोपिलो/स्केल"},{"term":"ひれ","reading":"ひれ","meaning":"पखेटा (fin)"},{"term":"骨","reading":"ほね","meaning":"हड्डी"}]},{"title":"पृष्ठ २ — माछा/समुद्री खाद्य (भाग 2)","words":[{"term":"丁寧","reading":"ていねい","meaning":"होसियारीपूर्वक/राम्रोसँग"},{"term":"用途","reading":"ようと","meaning":"प्रयोजन"},{"term":"性質","reading":"せいしつ","meaning":"गुण/स्वभाव"},{"term":"生食","reading":"せいしょく","meaning":"काँचो खाना"},{"term":"香味野菜","reading":"こうみやさい","meaning":"सुगन्धित तरकारी (अदुवा, प्याज आदि)"},{"term":"調味料","reading":"ちょうみりょう","meaning":"मसला/सिजनिङ"},{"term":"澄む","reading":"すむ","meaning":"सफा हुनु (आँखा)"},{"term":"えら","reading":"えら","meaning":"गिल (माछाको)"},{"term":"生臭さ","reading":"なまぐささ","meaning":"काँचो-गन्ध"},{"term":"切り身","reading":"きりみ","meaning":"काटिएको टुक्रा"}]},{"title":"पृष्ठ ३ — माछा भण्डारण / काट्ने तरिका / तरकारी (भाग 1)","words":[{"term":"劣化","reading":"れっか","meaning":"गुणस्तर घट्नु"},{"term":"傷む","reading":"いたむ","meaning":"बिग्रिनु"},{"term":"温度変化","reading":"おんどへんか","meaning":"तापक्रम परिवर्तन"},{"term":"下ろし方","reading":"おろしかた","meaning":"काट्ने/फिलेट गर्ने तरिका"},{"term":"三枚おろし","reading":"さんまいおろし","meaning":"३ टुक्रामा काट्ने तरिका"},{"term":"五枚おろし","reading":"ごまいおろし","meaning":"५ टुक्रामा काट्ने तरिका"},{"term":"毒","reading":"どく","meaning":"विष"},{"term":"都道府県知事","reading":"とどうふけんちじ","meaning":"प्रान्तीय गभर्नर"},{"term":"専門のフグ処理者","reading":"せんもんのフグしょりしゃ","meaning":"विशेषज्ञ फुगु (माछा) प्रशोधक"},{"term":"盛り付け方","reading":"もりつけかた","meaning":"सजाउने/थाल भर्ने तरिका"},{"term":"一尾魚","reading":"いちびざかな","meaning":"सम्पूर्ण/पूरा माछा"},{"term":"付け合わせ","reading":"つけあわせ","meaning":"साइड डिश"},{"term":"市場","reading":"しじょう","meaning":"बजार"}]},{"title":"पृष्ठ ३ — माछा भण्डारण / काट्ने तरिका / तरकारी (भाग 2)","words":[{"term":"流通する","reading":"りゅうつうする","meaning":"वितरण/प्रवाह हुनु"},{"term":"イモ類","reading":"イモるい","meaning":"जरा-तरकारी (आलु जातीय)"},{"term":"豆類","reading":"まめるい","meaning":"गेडागुडी"},{"term":"根菜類","reading":"こんさいるい","meaning":"जरा तरकारी"},{"term":"茎菜類","reading":"けいさいるい","meaning":"डाँठ तरकारी"},{"term":"葉菜類","reading":"ようさいるい","meaning":"पातयुक्त तरकारी"},{"term":"果菜類","reading":"かさいるい","meaning":"फलजस्तो तरकारी (जस्तै काक्रो, बैंगन)"},{"term":"栄養価","reading":"えいようか","meaning":"पोषण मूल्य"},{"term":"無機質","reading":"むきしつ","meaning":"खनिज तत्व"},{"term":"食物繊維","reading":"しょくもつせんい","meaning":"फाइबर"},{"term":"損失","reading":"そんしつ","meaning":"हानि/क्षति"},{"term":"クロロフィル","reading":"クロロフィル","meaning":"क्लोरोफिल (हरियो रंगद्रव्य)"},{"term":"冷ます","reading":"さます","meaning":"चिसो पार्नु"}]},{"title":"पृष्ठ ४ — तरकारी भण्डारण / राष्ट्रिय पशुधन","words":[{"term":"褐変","reading":"かっぺん","meaning":"खैरो हुनु (अक्सिडेशन)"},{"term":"しんなり","reading":"しんなり","meaning":"नरम/पहेंलिएको अवस्था"},{"term":"光沢","reading":"こうたく","meaning":"चमक"},{"term":"乾燥","reading":"かんそう","meaning":"सुक्खा"},{"term":"芽","reading":"め","meaning":"अंकुर"},{"term":"冷暗所","reading":"れいあんしょ","meaning":"चिसो अँध्यारो ठाउँ"},{"term":"常温保存","reading":"じょうおんほぞん","meaning":"सामान्य तापक्रममा भण्डारण"},{"term":"蒸散","reading":"じょうさん","meaning":"वाष्पीकरण"},{"term":"和牛","reading":"わぎゅう","meaning":"जापानी विशेष जातको गाई"},{"term":"黒毛和種","reading":"くろげわしゅ","meaning":"कालो-रौं भएको जापानी गाई जात"},{"term":"褐毛和種","reading":"あかげわしゅ","meaning":"खैरो-रौं भएको जापानी गाई जात"},{"term":"無角和種","reading":"むかくわしゅ","meaning":"सिङविनाको जापानी गाई जात"},{"term":"日本短角種","reading":"にほんたんかくしゅ","meaning":"जापानी छोटो-सिङ जात"},{"term":"交雑種","reading":"こうざつしゅ","meaning":"मिश्रित जात"},{"term":"脂肪交雑","reading":"しぼうこうざつ","meaning":"मार्बलिङ (मासुभित्रको बोसो मिश्रण)"},{"term":"伝統野菜","reading":"でんとうやさい","meaning":"परम्परागत तरकारी"},{"term":"在来野菜","reading":"ざいらいやさい","meaning":"स्थानीय/देशी तरकारी"},{"term":"品種改良","reading":"ひんしゅかいりょう","meaning":"जातको सुधार"},{"term":"栽培","reading":"さいばい","meaning":"खेती गर्नु"},{"term":"食文化","reading":"しょくぶんか","meaning":"खाना संस्कृति"}]},{"title":"पृष्ठ ५ — पूर्व-तयारी (下処理) (भाग 1)","words":[{"term":"目的","reading":"もくてき","meaning":"उद्देश्य"},{"term":"加工処理","reading":"かこうしょり","meaning":"प्रशोधन"},{"term":"洗浄","reading":"せんじょう","meaning":"धुलाइ"},{"term":"あくをぬく","reading":"あくをぬく","meaning":"तीतोपन/फोहोर निकाल्नु"},{"term":"切れ目を入れる","reading":"きれめをいれる","meaning":"चिरा हाल्नु"},{"term":"乾物","reading":"かんぶつ","meaning":"सुकेको खाद्यपदार्थ"},{"term":"状態","reading":"じょうたい","meaning":"अवस्था"},{"term":"食感","reading":"しょっかん","meaning":"खाँदाको अनुभूति (टेक्स्चर)"},{"term":"食中毒菌","reading":"しょくちゅうどくきん","meaning":"खाद्य विषाक्तताको ब्याक्टेरिया"},{"term":"腐敗","reading":"ふはい","meaning":"सड्नु"},{"term":"微生物","reading":"びせいぶつ","meaning":"सूक्ष्मजीव"},{"term":"付着","reading":"ふちゃく","meaning":"टाँसिनु"},{"term":"手指","reading":"てゆび","meaning":"हातका औंला"}]},{"title":"पृष्ठ ५ — पूर्व-तयारी (下処理) (भाग 2)","words":[{"term":"作業台","reading":"さぎょうだい","meaning":"काम गर्ने टेबल"},{"term":"殺菌済み","reading":"さっきんずみ","meaning":"जीवाणुनाशित"},{"term":"二次汚染","reading":"にじおせん","meaning":"दोस्रोपटक दूषित हुनु"},{"term":"根元","reading":"ねもと","meaning":"जराको फेद"},{"term":"泥","reading":"どろ","meaning":"हिलो"},{"term":"冷水","reading":"れいすい","meaning":"चिसो पानी"},{"term":"あく抜き","reading":"あくぬき","meaning":"तीतोपन हटाउने प्रक्रिया"},{"term":"酢水","reading":"すみず","meaning":"सिर्का मिसाइएको पानी"},{"term":"浸透圧","reading":"しんとうあつ","meaning":"ओस्मोटिक प्रेसर"},{"term":"反り返る","reading":"そりかえる","meaning":"बांगिनु/मोडिनु"},{"term":"肉たたき","reading":"にくたたき","meaning":"मासु कुट्ने औजार"},{"term":"整える","reading":"ととのえる","meaning":"मिलाउनु/व्यवस्थित गर्नु"}]},{"title":"पृष्ठ ५-६ — माछा प्रशोधन","words":[{"term":"えらを取る","reading":"えらをとる","meaning":"गिल निकाल्नु"},{"term":"内臓","reading":"ないぞう","meaning":"भित्री अंग/भुँडी"},{"term":"尾頭付き","reading":"おかしらつき","meaning":"टाउको-पुच्छर सहित (पूरा माछा)"},{"term":"水洗い","reading":"みずあらい","meaning":"पानीले धुलाइ"},{"term":"水気","reading":"みずけ","meaning":"चिस्यान/पानीको अंश"},{"term":"中骨","reading":"なかぼね","meaning":"बीचको हड्डी"},{"term":"裏返す","reading":"うらがえす","meaning":"उल्टाउनु"}]},{"title":"पृष्ठ ६ — पकाउने विधिहरू","words":[{"term":"各調理方法","reading":"かくちょうりほうほう","meaning":"हरेक पकाउने विधि"},{"term":"効率","reading":"こうりつ","meaning":"दक्षता"},{"term":"節約","reading":"せつやく","meaning":"बचत"},{"term":"茹でる","reading":"ゆでる","meaning":"उमाल्नु"},{"term":"煮る","reading":"にる","meaning":"पकाउनु (शोरबामा)"},{"term":"揚げる","reading":"あげる","meaning":"तार्नु/डुबाएर भुट्नु"},{"term":"焼く","reading":"やく","meaning":"सेक्नु/पोल्नु"},{"term":"炒める","reading":"いためる","meaning":"भुट्नु (कम तेलमा हल्लाएर)"},{"term":"蒸す","reading":"むす","meaning":"बाफले पकाउनु"},{"term":"消化吸収","reading":"しょうかきゅうしゅう","meaning":"पाचन र अवशोषण"},{"term":"煮汁","reading":"にじる","meaning":"पकाउँदाको झोल"},{"term":"攪拌","reading":"かくはん","meaning":"मिसाउनु/हल्लाउनु"},{"term":"参考","reading":"さんこう","meaning":"सन्दर्भ"},{"term":"酸化","reading":"さんか","meaning":"अक्सिडेशन"},{"term":"粘り","reading":"ねばり","meaning":"टाँसिनेपन"},{"term":"泡立ち","reading":"あわだち","meaning":"फिँज बन्नु"},{"term":"不純物","reading":"ふじゅんぶつ","meaning":"अशुद्धता"},{"term":"直射日光","reading":"ちょくしゃにっこう","meaning":"सीधा घामको किरण"}]},{"title":"पृष्ठ ६-७ — नतताई पकाउने विधि र योजना (भाग 1)","words":[{"term":"混合","reading":"こんごう","meaning":"मिश्रण"},{"term":"撹拌","reading":"かくはん","meaning":"हल्लाउनु/मिसाउनु"},{"term":"冷却","reading":"れいきゃく","meaning":"चिसो पार्नु"},{"term":"交差汚染","reading":"こうさおせん","meaning":"क्रस-कन्टामिनेसन"},{"term":"注意事項","reading":"ちゅういじこう","meaning":"ध्यान दिनुपर्ने कुरा"},{"term":"使い捨て手袋","reading":"つかいすててぶくろ","meaning":"एकपटक प्रयोग हुने पन्जा"},{"term":"菜箸","reading":"さいばし","meaning":"खाना पकाउने चप्स्टिक"},{"term":"凍結","reading":"とうけつ","meaning":"जमाइएको"},{"term":"生食用冷凍魚介類","reading":"せいしょくようれいとうぎょかいるい","meaning":"काँचो खानका लागि फ्रिज गरिएको माछा/समुद्री खाद्य"},{"term":"組織","reading":"そしき","meaning":"तन्तु"},{"term":"破壊","reading":"はかい","meaning":"ध्वंस/क्षति"}]},{"title":"पृष्ठ ६-७ — नतताई पकाउने विधि र योजना (भाग 2)","words":[{"term":"流出","reading":"りゅうしゅつ","meaning":"बगेर निस्कनु"},{"term":"そうざい半製品","reading":"そうざいはんせいひん","meaning":"अर्ध-तयार खानेकुरा"},{"term":"電子レンジ","reading":"でんしレンジ","meaning":"माइक्रोवेभ"},{"term":"歯ざわり","reading":"はざわり","meaning":"चपाउँदाको अनुभूति"},{"term":"ブランチング","reading":"ブランチング","meaning":"ब्लान्चिङ (छोटो उमाल्ने प्रक्रिया)"},{"term":"酵素","reading":"こうそ","meaning":"इन्जाइम"},{"term":"失活","reading":"しっかつ","meaning":"निष्क्रिय पार्नु"},{"term":"調理マニュアル","reading":"ちょうりマニュアル","meaning":"पकाउने म्यानुअल"},{"term":"仕入","reading":"しいれ","meaning":"सामान किन्नु/खरिद"},{"term":"労働安全","reading":"ろうどうあんぜん","meaning":"श्रम सुरक्षा"}]},{"title":"पृष्ठ ७-८ — पकाउने उपकरण (भाग 1)","words":[{"term":"業務用","reading":"ぎょうむよう","meaning":"व्यावसायिक प्रयोगका लागि"},{"term":"取扱説明書","reading":"とりあつかいせつめいしょ","meaning":"प्रयोग विधि पुस्तिका"},{"term":"自動温度調節機能","reading":"じどうおんどちょうせつきのう","meaning":"स्वचालित तापक्रम नियन्त्रण प्रणाली"},{"term":"設定温度","reading":"せっていおんど","meaning":"सेट गरिएको तापक्रम"},{"term":"非接触温度計","reading":"ひせっしょくおんどけい","meaning":"नछोई नाप्ने थर्मोमिटर"},{"term":"ガスレンジ","reading":"ガスレンジ","meaning":"ग्यास चुलो"},{"term":"換気","reading":"かんき","meaning":"हावा-प्रवाह/भेन्टिलेसन"},{"term":"換気扇","reading":"かんきせん","meaning":"भेन्टिलेसन फ्यान"},{"term":"一酸化炭素中毒","reading":"いっさんかたんそちゅうどく","meaning":"कार्बन मोनोअक्साइड विषाक्तता"},{"term":"死亡事故","reading":"しぼうじこ","meaning":"मृत्यु हुने दुर्घटना"},{"term":"故障","reading":"こしょう","meaning":"बिग्रिनु/खराबी"}]},{"title":"पृष्ठ ७-८ — पकाउने उपकरण (भाग 2)","words":[{"term":"スチームコンベクションオーブン","reading":"スチームコンベクションオーブン","meaning":"स्टीम कन्भेक्सन ओभन"},{"term":"庫内","reading":"こない","meaning":"भित्री कक्ष"},{"term":"電源","reading":"でんげん","meaning":"बिजुलीको स्रोत"},{"term":"自動洗浄","reading":"じどうせんじょう","meaning":"स्वचालित सफाइ"},{"term":"水蒸気","reading":"すいじょうき","meaning":"बाफ"},{"term":"充満","reading":"じゅうまん","meaning":"भरिनु"},{"term":"やけど","reading":"やけど","meaning":"पोलिनु/डढेको घाउ"},{"term":"フライヤー","reading":"フライヤー","meaning":"डिप फ्राइर"},{"term":"酸化値","reading":"さんかち","meaning":"अक्सिडेशन मान (AV मान)"},{"term":"営業終了時","reading":"えいぎょうしゅうりょうじ","meaning":"व्यवसाय बन्द हुने बेला"},{"term":"交換","reading":"こうかん","meaning":"साट्नु/बदल्नु"}]},{"title":"पृष्ठ ८ — तापयुक्त उपकरण (जारी) (भाग 1)","words":[{"term":"蒸し器","reading":"むしき","meaning":"स्टीमर"},{"term":"茹で麺器","reading":"ゆでめんき","meaning":"नुडल उमाल्ने उपकरण"},{"term":"グリドル","reading":"グリドル","meaning":"ग्रिडल"},{"term":"ブレージングパン","reading":"ブレージングパン","meaning":"ब्रेजिङ प्यान"},{"term":"立体式炊飯器","reading":"りったいしきすいはんき","meaning":"ठूलो भात पकाउने उपकरण"},{"term":"卓上炊飯器","reading":"たくじょうすいはんき","meaning":"टेबल-टप कुकर"},{"term":"試食","reading":"ししょく","meaning":"स्वाद जाँच्नु"},{"term":"提供","reading":"ていきょう","meaning":"सेवा दिनु/पस्किनु"},{"term":"焼き物器","reading":"やきものき","meaning":"ग्रिल उपकरण"},{"term":"火力","reading":"かりょく","meaning":"आगोको बल"},{"term":"ムラ","reading":"ムラ","meaning":"असमानता"},{"term":"回転釜","reading":"かいてんがま","meaning":"घुम्ने कढाइ"}]},{"title":"पृष्ठ ८ — तापयुक्त उपकरण (जारी) (भाग 2)","words":[{"term":"冷機器","reading":"れいきき","meaning":"चिसो पार्ने उपकरण"},{"term":"急速冷凍","reading":"きゅうそくれいとう","meaning":"छिटो फ्रिज गर्नु"},{"term":"扉","reading":"とびら","meaning":"ढोका"},{"term":"取っ手","reading":"とって","meaning":"हुक/समाउने भाग"},{"term":"パッキン","reading":"パッキン","meaning":"प्याकिङ/सिल"},{"term":"雑菌","reading":"ざっきん","meaning":"हानिकारक ब्याक्टेरिया"},{"term":"破損","reading":"はそん","meaning":"क्षति"},{"term":"冷却装置","reading":"れいきゃくそうち","meaning":"चिसो पार्ने यन्त्र"},{"term":"製氷皿","reading":"せいひょうざら","meaning":"बरफ बनाउने ट्रे"},{"term":"死骸","reading":"しがい","meaning":"लास/शरीर (किराको)"},{"term":"貯氷ケース","reading":"ちょひょうケース","meaning":"बरफ भण्डारण बाकस"},{"term":"不特定多数","reading":"ふとくていたすう","meaning":"धेरैजना अज्ञात व्यक्ति"}]},{"title":"पृष्ठ ९ — सफाइ उपकरण / चक्कु (भाग 1)","words":[{"term":"食器","reading":"しょっき","meaning":"भाँडाकुँडा"},{"term":"回転数","reading":"かいてんすう","meaning":"घुम्ने दर/मात्रा"},{"term":"売り上げ","reading":"うりあげ","meaning":"बिक्री"},{"term":"直結","reading":"ちょっけつ","meaning":"सीधा जोडिएको"},{"term":"内部","reading":"ないぶ","meaning":"भित्री भाग"},{"term":"目詰まり","reading":"めづまり","meaning":"घुत्थिनु/बन्द हुनु"},{"term":"排水部","reading":"はいすいぶ","meaning":"पानी निकास भाग"},{"term":"漏れ","reading":"もれ","meaning":"चुहावट"},{"term":"洗浄剤","reading":"せんじょうざい","meaning":"सफाइ पदार्थ"},{"term":"補充","reading":"ほじゅう","meaning":"थपथाप गर्नु"},{"term":"リンス剤添加","reading":"リンスざいてんか","meaning":"रिन्स एजेन्ट मिसावट"},{"term":"欠かせない","reading":"かかせない","meaning":"अनिवार्य/छुटाउन नमिल्ने"},{"term":"直接","reading":"ちょくせつ","meaning":"प्रत्यक्ष"}]},{"title":"पृष्ठ ९ — सफाइ उपकरण / चक्कु (भाग 2)","words":[{"term":"鋼製","reading":"こうせい","meaning":"स्टीलको बनेको"},{"term":"切れ味","reading":"きれあじ","meaning":"काट्ने धार"},{"term":"研ぐ","reading":"とぐ","meaning":"धार लगाउनु"},{"term":"壁","reading":"かべ","meaning":"भित्ता"},{"term":"柳刃包丁","reading":"やなぎばぼうちょう","meaning":"सासिमी काट्ने साँघुरो चक्कु"},{"term":"刃渡り","reading":"はわたり","meaning":"धारको लम्बाइ"},{"term":"出刃包丁","reading":"でばぼうちょう","meaning":"माछा काट्ने बलियो चक्कु"},{"term":"菜切包丁","reading":"なきりぼうちょう","meaning":"तरकारी काट्ने जापानी चक्कु"},{"term":"薄刃包丁","reading":"うすばぼうちょう","meaning":"पातलो धारको जापानी तरकारी चक्कु"},{"term":"牛刀","reading":"ぎゅうとう","meaning":"मासु काट्ने ठूलो चक्कु"},{"term":"三徳包丁","reading":"さんとくぼうちょう","meaning":"सर्वसाधारण प्रयोगको चक्कु"},{"term":"ペティナイフ","reading":"ペティナイフ","meaning":"सानो चक्कु (पेरिङ नाइफ)"},{"term":"中華包丁","reading":"ちゅうかぼうちょう","meaning":"चाइनिज चक्कु"}]},{"title":"पृष्ठ १० — भाँडा / कराही / नाप्ने उपकरण (भाग 1)","words":[{"term":"容器","reading":"ようき","meaning":"भाँडा/कन्टेनर"},{"term":"スポンジ","reading":"スポンジ","meaning":"स्पन्ज"},{"term":"スチールたわし","reading":"スチールたわし","meaning":"स्टील स्क्रबर"},{"term":"隅","reading":"すみ","meaning":"कुना"},{"term":"フッ素加工","reading":"フッそかこう","meaning":"टेफ्लोन-कोटेड"},{"term":"焦げ付く","reading":"こげつく","meaning":"डढेर टाँसिनु"},{"term":"特殊","reading":"とくしゅ","meaning":"विशेष"},{"term":"中性洗剤","reading":"ちゅうせいせんざい","meaning":"न्यूट्रल डिटर्जेन्ट"},{"term":"剥がれる","reading":"はがれる","meaning":"उप्किनु"},{"term":"鉄フライパン","reading":"てつフライパン","meaning":"फलामको फ्राइपन"},{"term":"完全","reading":"かんぜん","meaning":"पूर्ण रूपमा"},{"term":"素材","reading":"そざい","meaning":"सामग्री/धातु"},{"term":"ステンレス","reading":"ステンレス","meaning":"स्टेनलेस स्टील"}]},{"title":"पृष्ठ १० — भाँडा / कराही / नाप्ने उपकरण (भाग 2)","words":[{"term":"アルミニウム","reading":"アルミニウム","meaning":"एल्युमिनियम"},{"term":"銅","reading":"どう","meaning":"तामा"},{"term":"陶磁器","reading":"とうじき","meaning":"माटोको भाँडा"},{"term":"耐久性","reading":"たいきゅうせい","meaning":"टिकाउपन"},{"term":"熱源","reading":"ねつげん","meaning":"तापको स्रोत"},{"term":"精密機械","reading":"せいみつきかい","meaning":"सूक्ष्म/नाजुक मेसिन"},{"term":"振動","reading":"しんどう","meaning":"हल्लो/कम्पन"},{"term":"精度","reading":"せいど","meaning":"शुद्धता"},{"term":"計量器","reading":"けいりょうき","meaning":"नाप्ने उपकरण"},{"term":"動作確認","reading":"どうさかくにん","meaning":"सञ्चालन जाँच"},{"term":"点検","reading":"てんけん","meaning":"निरीक्षण"},{"term":"校正","reading":"こうせい","meaning":"क्यालिब्रेसन"}]},{"title":"पृष्ठ ११ — श्रम सुरक्षा (भाग 1)","words":[{"term":"発生状況","reading":"はっせいじょうきょう","meaning":"घटना हुने अवस्था"},{"term":"転倒","reading":"てんとう","meaning":"लड्नु/लडेर ढल्नु"},{"term":"割合","reading":"わりあい","meaning":"अनुपात"},{"term":"切れ・こすれ","reading":"きれ・こすれ","meaning":"काटिनु/घोप्टिनु"},{"term":"高温・低温物","reading":"こうおん・ていおんぶつ","meaning":"तातो/चिसो वस्तु"},{"term":"接触","reading":"せっしょく","meaning":"सम्पर्क/छुनु"},{"term":"反動","reading":"はんどう","meaning":"झट्का/प्रतिक्रिया"},{"term":"類別","reading":"るいべつ","meaning":"वर्गीकरण"},{"term":"全産業","reading":"ぜんさんぎょう","meaning":"सम्पूर्ण उद्योग"},{"term":"若年層","reading":"じゃくねんそう","meaning":"युवा वर्ग"},{"term":"労働者","reading":"ろうどうしゃ","meaning":"श्रमिक"}]},{"title":"पृष्ठ ११ — श्रम सुरक्षा (भाग 2)","words":[{"term":"被災","reading":"ひさい","meaning":"दुर्घटनाग्रस्त हुनु"},{"term":"目立つ","reading":"めだつ","meaning":"उदाङ्गो/स्पष्ट देखिनु"},{"term":"厚生労働省","reading":"こうせいろうどうしょう","meaning":"स्वास्थ्य, श्रम तथा कल्याण मन्त्रालय"},{"term":"法令上の義務付け","reading":"ほうれいじょうのぎむづけ","meaning":"कानूनी दायित्व"},{"term":"現状","reading":"げんじょう","meaning":"वर्तमान अवस्था"},{"term":"担当者","reading":"たんとうしゃ","meaning":"जिम्मेवार व्यक्ति"},{"term":"職場","reading":"しょくば","meaning":"कार्यस्थल"},{"term":"潜む","reading":"ひそむ","meaning":"लुकेको हुनु"},{"term":"視覚的","reading":"しかくてき","meaning":"दृश्यात्मक रूपमा"},{"term":"可視化","reading":"かしか","meaning":"दृश्यात्मक बनाउनु"},{"term":"効果的","reading":"こうかてき","meaning":"प्रभावकारी"}]},{"title":"पृष्ठ १२-१३ — खतरा देखिने बनाउने उदाहरण (चित्रसहित)","words":[{"term":"濡れた床","reading":"ぬれたゆか","meaning":"भिजेको भुइँ"},{"term":"グレーチング","reading":"グレーチング","meaning":"ग्रेटिङ/नाली ढक्कन"},{"term":"切傷","reading":"きりきず","meaning":"काटेको घाउ"},{"term":"シンク","reading":"シンク","meaning":"सिंक"},{"term":"食用缶","reading":"しょくようかん","meaning":"खाना राख्ने टिनको भाँडा"},{"term":"火傷","reading":"やけど","meaning":"डढेको घाउ (जलेको)"},{"term":"熱い鍋","reading":"あついなべ","meaning":"तातो भाँडो"},{"term":"同僚","reading":"どうりょう","meaning":"सहकर्मी"},{"term":"バランスを崩す","reading":"バランスをくずす","meaning":"सन्तुलन बिग्रिनु"},{"term":"腰痛","reading":"ようつう","meaning":"कम्मरको दुखाइ"},{"term":"荷物","reading":"にもつ","meaning":"सामान/बोझ"},{"term":"体","reading":"からだ","meaning":"शरीर"},{"term":"離す","reading":"はなす","meaning":"टाढा राख्नु"},{"term":"近づける","reading":"ちかづける","meaning":"नजिक ल्याउनु"},{"term":"作業手順","reading":"さぎょうてじゅん","meaning":"काम गर्ने क्रम"},{"term":"危険箇所","reading":"きけんかしょ","meaning":"खतरनाक ठाउँ"},{"term":"挿入","reading":"そうにゅう","meaning":"हाल्नु/समावेश गर्नु"},{"term":"ハザードマップ","reading":"ハザードマップ","meaning":"खतरा नक्सा"},{"term":"掲示","reading":"けいじ","meaning":"सूचना टाँस्नु"},{"term":"周知","reading":"しゅうち","meaning":"सबैलाई जानकारी दिनु"}]},{"title":"पृष्ठ १४ — दुर्घटना रोकथाम / मेसिन नियमावली (भाग 1)","words":[{"term":"具体的","reading":"ぐたいてき","meaning":"ठोस/विशिष्ट"},{"term":"５Ｓ活動","reading":"ゴエスかつどう","meaning":"५S गतिविधि (整理・整頓・清掃・清潔・習慣)"},{"term":"整理","reading":"せいり","meaning":"मिलाउनु/छँट्याउनु"},{"term":"整頓","reading":"せいとん","meaning":"व्यवस्थित गर्नु"},{"term":"清掃","reading":"せいそう","meaning":"सफा गर्नु"},{"term":"清潔","reading":"せいけつ","meaning":"सफाइ/स्वच्छता"},{"term":"習慣","reading":"しゅうかん","meaning":"बानी/अभ्यास"},{"term":"滑り","reading":"すべり","meaning":"चिप्लिनु"},{"term":"通路","reading":"つうろ","meaning":"बाटो/मार्ग"},{"term":"つまづき","reading":"つまづき","meaning":"ठेस लाग्नु"},{"term":"徹底","reading":"てってい","meaning":"पूर्ण रूपमा लागू गर्नु"},{"term":"台車","reading":"だいしゃ","meaning":"ट्रली"},{"term":"低減","reading":"ていげん","meaning":"कम गर्नु"},{"term":"措置","reading":"そち","meaning":"उपाय/कदम"},{"term":"目線","reading":"めせん","meaning":"नजर/दृष्टि"},{"term":"恐れ","reading":"おそれ","meaning":"जोखिम/डर"},{"term":"ゴム手袋","reading":"ゴムてぶくろ","meaning":"रबरको पन्जा"},{"term":"保護","reading":"ほご","meaning":"सुरक्षा"},{"term":"割れた食器","reading":"われたしょっき","meaning":"फुटेको भाँडो"}]},{"title":"पृष्ठ १४ — दुर्घटना रोकथाम / मेसिन नियमावली (भाग 2)","words":[{"term":"混入","reading":"こんにゅう","meaning":"मिसिनु"},{"term":"可能性","reading":"かのうせい","meaning":"सम्भावना"},{"term":"軍手","reading":"ぐんて","meaning":"काम गर्ने पन्जा"},{"term":"ふち","reading":"ふち","meaning":"किनारा"},{"term":"プルトップ","reading":"プルトップ","meaning":"पुल-टप (टिनको ढक्कन)"},{"term":"長靴","reading":"ながぐつ","meaning":"गमबुट"},{"term":"耐熱手袋","reading":"たいねつてぶくろ","meaning":"ताप-प्रतिरोधी पन्जा"},{"term":"抽出","reading":"ちゅうしゅつ","meaning":"निचोड्नु/निकाल्नु"},{"term":"内容物","reading":"ないようぶつ","meaning":"भित्री सामग्री"},{"term":"寸胴鍋","reading":"ずんどうなべ","meaning":"गहिरो भाँडो (स्टकपोट)"},{"term":"熱中症","reading":"ねっちゅうしょう","meaning":"लू लाग्ने रोग (हिट स्ट्रोक)"},{"term":"食品加工機械","reading":"しょくひんかこうきかい","meaning":"खाद्य प्रशोधन मेसिन"},{"term":"法規制","reading":"ほうきせい","meaning":"कानूनी नियमन"},{"term":"労働安全衛生規則","reading":"ろうどうあんぜんえいせいきそく","meaning":"श्रम सुरक्षा तथा स्वास्थ्य नियमावली"},{"term":"切断機","reading":"せつだんき","meaning":"काट्ने मेसिन"},{"term":"切削機","reading":"せっさくき","meaning":"काट्ने/छिल्ने मेसिन"},{"term":"覆い","reading":"おおい","meaning":"ढाकिने आवरण"},{"term":"設置","reading":"せっち","meaning":"जडान/स्थापना"},{"term":"送給","reading":"そうきゅう","meaning":"खुवाउनु (मेसिनमा)"}]},{"title":"पृष्ठ १४ — दुर्घटना रोकथाम / मेसिन नियमावली (भाग 3)","words":[{"term":"運転","reading":"うんてん","meaning":"सञ्चालन"},{"term":"停止","reading":"ていし","meaning":"रोक्नु"},{"term":"粉砕機","reading":"ふんさいき","meaning":"पिस्ने मेसिन"},{"term":"混合機","reading":"こんごうき","meaning":"मिसाउने मेसिन"},{"term":"転落","reading":"てんらく","meaning":"लडेर खस्नु"},{"term":"巻き込まれ","reading":"まきこまれ","meaning":"फस्नु/बेरिनु"},{"term":"開口部","reading":"かいこうぶ","meaning":"खुल्ला भाग"},{"term":"蓋","reading":"ふた","meaning":"ढक्कन"},{"term":"ロール機","reading":"ロールき","meaning":"रोलर मेसिन"},{"term":"成形機","reading":"せいけいき","meaning":"आकार दिने मेसिन"},{"term":"挟まれ","reading":"はさまれ","meaning":"च्यापिनु"},{"term":"目詰まり","reading":"めづまり","meaning":"घुत्थिनु"},{"term":"調整","reading":"ちょうせい","meaning":"मिलाउनु/समायोजन"},{"term":"原則","reading":"げんそく","meaning":"सिद्धान्त"},{"term":"義務付け","reading":"ぎむづけ","meaning":"अनिवार्य बनाउनु"},{"term":"給油","reading":"きゅうゆ","meaning":"तेल हाल्नु"},{"term":"検査","reading":"けんさ","meaning":"जाँच"},{"term":"刃部","reading":"はぶ","meaning":"धार भाग"}]},{"title":"पृष्ठ १५ — खाद्य वितरण (भाग 1)","words":[{"term":"生産者","reading":"せいさんしゃ","meaning":"उत्पादक (किसान)"},{"term":"消費者","reading":"しょうひしゃ","meaning":"उपभोक्ता"},{"term":"経路","reading":"けいろ","meaning":"मार्ग/बाटो"},{"term":"農協","reading":"のうきょう","meaning":"कृषि सहकारी"},{"term":"出荷事業者","reading":"しゅっかじぎょうしゃ","meaning":"ढुवानी व्यवसाय"},{"term":"卸売市場","reading":"おろしうりしじょう","meaning":"थोक बजार"},{"term":"食品製造業","reading":"しょくひんせいぞうぎょう","meaning":"खाद्य उत्पादन उद्योग"},{"term":"食品小売業","reading":"しょくひんこうりぎょう","meaning":"खाद्य खुद्रा व्यवसाय"},{"term":"集荷","reading":"しゅうか","meaning":"सामान जम्मा गर्नु"},{"term":"価格形成","reading":"かかくけいせい","meaning":"मूल्य निर्धारण"},{"term":"決済","reading":"けっさい","meaning":"भुक्तानी"},{"term":"情報受発信","reading":"じょうほうじゅはっしん","meaning":"सूचना आदानप्रदान"}]},{"title":"पृष्ठ १५ — खाद्य वितरण (भाग 2)","words":[{"term":"災害時対応","reading":"さいがいじたいおう","meaning":"विपद् समयको प्रतिक्रिया"},{"term":"保持","reading":"ほじ","meaning":"कायम राख्नु"},{"term":"機能","reading":"きのう","meaning":"कार्य/प्रकार्य"},{"term":"生鮮食料品","reading":"せいせんしょくりょうひん","meaning":"ताजा खाद्यपदार्थ"},{"term":"安定的","reading":"あんていてき","meaning":"स्थिर रूपमा"},{"term":"供給","reading":"きょうきゅう","meaning":"आपूर्ति"},{"term":"運営","reading":"うんえい","meaning":"सञ्चालन"},{"term":"近隣商店","reading":"きんりんしょうてん","meaning":"छिमेकी पसल"},{"term":"卸売業者","reading":"おろしうりぎょうしゃ","meaning":"थोक व्यापारी"},{"term":"通信販売","reading":"つうしんはんばい","meaning":"अनलाइन/मेल अर्डर बिक्री"},{"term":"見極め","reading":"みきわめ","meaning":"राम्ररी छान्नु/मूल्याङ्कन गर्नु"}]},{"title":"पृष्ठ १६-१७ — खाद्य मिसावट पदार्थ (食品添加物) (भाग 1)","words":[{"term":"製造過程","reading":"せいぞうかてい","meaning":"उत्पादन प्रक्रिया"},{"term":"添加される","reading":"てんかされる","meaning":"मिसाइनु"},{"term":"食品安全基本法","reading":"しょくひんあんぜんきほんほう","meaning":"खाद्य सुरक्षा आधारभूत ऐन"},{"term":"食品安全委員会","reading":"しょくひんあんぜんいいんかい","meaning":"खाद्य सुरक्षा समिति"},{"term":"動物試験","reading":"どうぶつしけん","meaning":"जनावरमा गरिने परीक्षण"},{"term":"評価","reading":"ひょうか","meaning":"मूल्याङ्कन"},{"term":"安全性","reading":"あんぜんせい","meaning":"सुरक्षितता"},{"term":"指定添加物","reading":"していてんかぶつ","meaning":"निर्दिष्ट मिसावट पदार्थ"},{"term":"基準値","reading":"きじゅんち","meaning":"मापदण्ड मान"},{"term":"既存添加物","reading":"きぞんてんかぶつ","meaning":"पहिलेदेखि प्रयोगमा रहेको मिसावट पदार्थ"},{"term":"天然添加物","reading":"てんねんてんかぶつ","meaning":"प्राकृतिक मिसावट पदार्थ"},{"term":"一般飲食物添加物","reading":"いっぱんいんしょくぶつてんかぶつ","meaning":"सामान्य खाद्यवस्तुबाट बनेको मिसावट पदार्थ"},{"term":"天然香料","reading":"てんねんこうりょう","meaning":"प्राकृतिक सुगन्ध"},{"term":"甘味料","reading":"かんみりょう","meaning":"मिठास पदार्थ"},{"term":"着色料","reading":"ちゃくしょくりょう","meaning":"रंग पदार्थ"}]},{"title":"पृष्ठ १६-१७ — खाद्य मिसावट पदार्थ (食品添加物) (भाग 2)","words":[{"term":"保存料","reading":"ほぞんりょう","meaning":"संरक्षक पदार्थ"},{"term":"発育","reading":"はついく","meaning":"वृद्धि/विकास"},{"term":"抑制","reading":"よくせい","meaning":"रोक्नु/नियन्त्रण गर्नु"},{"term":"増粘剤","reading":"ぞうねんざい","meaning":"गाढापन बढाउने पदार्थ"},{"term":"安定剤","reading":"あんていざい","meaning":"स्थिरीकरण पदार्थ"},{"term":"ゲル化剤","reading":"ゲルかざい","meaning":"जेल बनाउने पदार्थ"},{"term":"糊剤","reading":"のりざい","meaning":"टाँसिने/गाढा पार्ने पदार्थ"},{"term":"粘性","reading":"ねんせい","meaning":"चिप्लोपन/गाढापन"},{"term":"滑らか","reading":"なめらか","meaning":"चिल्लो/मुलायम"},{"term":"品質","reading":"ひんしつ","meaning":"गुणस्तर"},{"term":"酸化防止剤","reading":"さんかぼうしざい","meaning":"एन्टिअक्सिडेन्ट"},{"term":"発色剤","reading":"はっしょくざい","meaning":"रंग निखार्ने पदार्थ"},{"term":"色調","reading":"しきちょう","meaning":"रंगको टोन"},{"term":"風味","reading":"ふうみ","meaning":"स्वाद/सुगन्ध"},{"term":"改善","reading":"かいぜん","meaning":"सुधार"}]},{"title":"पृष्ठ १६-१७ — खाद्य मिसावट पदार्थ (食品添加物) (भाग 3)","words":[{"term":"漂白剤","reading":"ひょうはくざい","meaning":"सेतो बनाउने पदार्थ (ब्लिचिङ)"},{"term":"防カビ剤","reading":"ぼうカビざい","meaning":"फफूँदी रोक्ने पदार्थ"},{"term":"柑橘類","reading":"かんきつるい","meaning":"सुन्तला/कागती जातीय फल"},{"term":"ガムベース","reading":"ガムベース","meaning":"गमको आधार सामग्री"},{"term":"膨張剤","reading":"ぼうちょうざい","meaning":"फुलाउने पदार्थ (बेकिङ पाउडर)"},{"term":"香料","reading":"こうりょう","meaning":"सुगन्ध पदार्थ"},{"term":"酸味料","reading":"さんみりょう","meaning":"अमिलोपन दिने पदार्थ"},{"term":"調味料","reading":"ちょうみりょう","meaning":"स्वाद बढाउने मसला"},{"term":"うまみ","reading":"うまみ","meaning":"स्वादिष्टता (उमामी)"},{"term":"豆腐用凝固剤","reading":"とうふようぎょうこざい","meaning":"टोफु जमाउने पदार्थ"},{"term":"豆乳","reading":"とうにゅう","meaning":"सोया दूध"},{"term":"凝固","reading":"ぎょうこ","meaning":"जमाउनु/कडा बनाउनु"},{"term":"乳化剤","reading":"にゅうかざい","meaning":"इमल्सिफायर"},{"term":"均一","reading":"きんいつ","meaning":"एकरूप"},{"term":"栄養強化剤","reading":"えいようきょうかざい","meaning":"पोषण बढाउने पदार्थ"}]},{"title":"पृष्ठ १८-१९ — किचन आधारभूत शब्दावली (参考) (भाग 1)","words":[{"term":"アイテム","reading":"アイテム","meaning":"एउटा मेनु वस्तु"},{"term":"単一品目","reading":"たんいつひんもく","meaning":"एकल वस्तु"},{"term":"品種","reading":"ひんしゅ","meaning":"वर्ग/किसिम"},{"term":"洗い場","reading":"あらいば","meaning":"भाँडा माझ्ने ठाउँ"},{"term":"調理場","reading":"ちょうりば","meaning":"भान्सा"},{"term":"接点","reading":"せってん","meaning":"जोडिने बिन्दु"},{"term":"形状","reading":"けいじょう","meaning":"आकार"},{"term":"シルバー類","reading":"シルバーるい","meaning":"चम्चा-काँटा जातीय"},{"term":"エスニックフード","reading":"エスニックフード","meaning":"जातीय/परम्परागत विदेशी खाना"},{"term":"異国情緒","reading":"いこくじょうちょ","meaning":"विदेशी वातावरण/भावना"},{"term":"現地の人","reading":"げんちのひと","meaning":"स्थानीय व्यक्ति"},{"term":"香辛料","reading":"こうしんりょう","meaning":"मसला"},{"term":"繁盛店","reading":"はんじょうてん","meaning":"धेरै चल्ने पसल"},{"term":"完成品基準","reading":"かんせいひんきじゅん","meaning":"तयार वस्तुको मापदण्ड"},{"term":"分量","reading":"ぶんりょう","meaning":"मात्रा"},{"term":"提供温度","reading":"ていきょうおんど","meaning":"पस्किने तापक्रम"},{"term":"商品マニュアル","reading":"しょうひんマニュアル","meaning":"वस्तु म्यानुअल"}]},{"title":"पृष्ठ १८-१९ — किचन आधारभूत शब्दावली (参考) (भाग 2)","words":[{"term":"キッチンヘルパー","reading":"キッチンヘルパー","meaning":"भान्सा सहायक"},{"term":"補佐","reading":"ほさ","meaning":"सहयोग/सहायता"},{"term":"募集","reading":"ぼしゅう","meaning":"भर्ना/जागिर खुल्ला"},{"term":"仕込み","reading":"しこみ","meaning":"पूर्व-तयारी काम"},{"term":"キッチンレイアウト","reading":"キッチンレイアウト","meaning":"भान्सा बनावट/लेआउट"},{"term":"加工度","reading":"かこうど","meaning":"प्रशोधनको स्तर"},{"term":"要員計画","reading":"よういんけいかく","meaning":"जनशक्ति योजना"},{"term":"売上予想","reading":"うりあげよそう","meaning":"बिक्री अनुमान"},{"term":"選別","reading":"せんべつ","meaning":"छनोट/छँट्याइ"},{"term":"ゾーニング","reading":"ゾーニング","meaning":"क्षेत्र विभाजन"},{"term":"動線","reading":"どうせん","meaning":"हिँडाइको मार्ग"},{"term":"経時変化","reading":"けいじへんか","meaning":"समयसँगै हुने परिवर्तन"},{"term":"ホールディングタイム","reading":"ホールディングタイム","meaning":"राख्न मिल्ने अवधि"},{"term":"保存期限","reading":"ほぞんきげん","meaning":"भण्डारण म्याद"},{"term":"廃棄","reading":"はいき","meaning":"फ्याँक्नु"},{"term":"検品","reading":"けんぴん","meaning":"सामान जाँच्नु"},{"term":"業者","reading":"ぎょうしゃ","meaning":"आपूर्तिकर्ता/व्यापारी"}]},{"title":"पृष्ठ १८-१९ — किचन आधारभूत शब्दावली (参考) (भाग 3)","words":[{"term":"納入","reading":"のうにゅう","meaning":"आपूर्ति गर्नु/ल्याउनु"},{"term":"発注","reading":"はっちゅう","meaning":"अर्डर गर्नु"},{"term":"単価","reading":"たんか","meaning":"एकाइ मूल्य"},{"term":"銘柄","reading":"めいがら","meaning":"ब्रान्ड"},{"term":"熟成度","reading":"じゅくせいど","meaning":"परिपक्वताको स्तर"},{"term":"破損","reading":"はそん","meaning":"क्षति"},{"term":"欠品","reading":"けっぴん","meaning":"स्टक अभाव"},{"term":"コックレスキッチン","reading":"コックレスキッチン","meaning":"कुक-रहित भान्सा"},{"term":"セントラルキッチン","reading":"セントラルキッチン","meaning":"केन्द्रीय भान्सा (CK)"},{"term":"開発","reading":"かいはつ","meaning":"विकास"},{"term":"採用","reading":"さいよう","meaning":"अपनाउनु/ग्रहण गर्नु"},{"term":"方針","reading":"ほうしん","meaning":"नीति"},{"term":"在庫管理","reading":"ざいこかんり","meaning":"स्टक व्यवस्थापन"},{"term":"手持ち","reading":"てもち","meaning":"हातमा भएको"},{"term":"在庫額","reading":"ざいこがく","meaning":"स्टकको मूल्य"},{"term":"悪影響","reading":"あくえいきょう","meaning":"नराम्रो असर"},{"term":"先入れ先出し","reading":"さきいれさきだし","meaning":"पहिले आएको पहिले प्रयोग (FIFO)"}]},{"title":"पृष्ठ १८-१९ — किचन आधारभूत शब्दावली (参考) (भाग 4)","words":[{"term":"定位置管理","reading":"ていいちかんり","meaning":"निश्चित ठाउँमा राख्ने व्यवस्थापन"},{"term":"鮮度管理","reading":"せんどかんり","meaning":"ताजापन व्यवस्थापन"},{"term":"仕様書発注","reading":"しようしょはっちゅう","meaning":"विशेष विवरण अनुसार अर्डर"},{"term":"レシピ","reading":"レシピ","meaning":"रेसिपी"},{"term":"発注管理","reading":"はっちゅうかんり","meaning":"अर्डर व्यवस्थापन"},{"term":"保管管理","reading":"ほかんかんり","meaning":"भण्डारण व्यवस्थापन"},{"term":"厳守","reading":"げんしゅ","meaning":"कडाइका साथ पालना"},{"term":"均一化","reading":"きんいつか","meaning":"एकरूप बनाउने"},{"term":"コスト削減","reading":"コストさくげん","meaning":"लागत घटाउनु"},{"term":"単純化","reading":"たんじゅんか","meaning":"सरलीकरण"},{"term":"棚卸し","reading":"たなおろし","meaning":"स्टक जाँच (इन्भेन्टरी काउन्ट)"},{"term":"実地棚卸し","reading":"じっちたなおろし","meaning":"वास्तविक स्थलगत स्टक जाँच"},{"term":"原価管理","reading":"げんかかんり","meaning":"लागत व्यवस्थापन"},{"term":"バッシング","reading":"バッシング","meaning":"टेबल सफा गर्ने काम"},{"term":"残飯","reading":"ざんぱん","meaning":"बाँकी खाना"},{"term":"プレバッシング","reading":"プレバッシング","meaning":"अगावै टेबल सफा गर्ने काम"},{"term":"パントリー","reading":"パントリー","meaning":"भाँडाकुँडा राख्ने कोठा"}]},{"title":"पृष्ठ १८-१९ — किचन आधारभूत शब्दावली (参考) (भाग 5)","words":[{"term":"配膳室","reading":"はいぜんしつ","meaning":"खाना पस्किने कोठा"},{"term":"溜まり","reading":"たまり","meaning":"जम्मा हुने ठाउँ"},{"term":"苦情","reading":"くじょう","meaning":"गुनासो"},{"term":"プロダクションコントロール","reading":"プロダクションコントロール","meaning":"उत्पादन नियन्त्रण"},{"term":"入店状況","reading":"にゅうてんじょうきょう","meaning":"ग्राहक आगमन अवस्था"},{"term":"予測","reading":"よそく","meaning":"पूर्वानुमान"},{"term":"巧拙","reading":"こうせつ","meaning":"सीप वा असीप"},{"term":"ポーション","reading":"ポーション","meaning":"एक सर्भिङको मात्रा"},{"term":"メニュー基準表","reading":"メニューきじゅんひょう","meaning":"मेनु मापदण्ड तालिका"},{"term":"未然に防ぐ","reading":"みぜんにふせぐ","meaning":"हुनुअघि नै रोक्नु"},{"term":"オーバーポーション","reading":"オーバーポーション","meaning":"तोकिएभन्दा बढी मात्रा"},{"term":"アンダーポーション","reading":"アンダーポーション","meaning":"तोकिएभन्दा कम मात्रा"},{"term":"詳細","reading":"しょうさい","meaning":"विस्तृत विवरण"},{"term":"古典料理","reading":"こてんりょうり","meaning":"परम्परागत/शास्त्रीय खाना"},{"term":"アレンジされる","reading":"アレンジされる","meaning":"परिमार्जित हुनु"}]}];
+const QA_PAGES_RAW = [{"title":"पृष्ठ 1 — परिचय र खाद्यसामग्री (肉類 - मासु) बारे","words":[{"question":"このテキストは何のために作られましたか。","answer":"特定技能２号で働くために必要な専門的な知識と技能を紹介するために作られました。"},{"question":"日本の食品の種類は何品くらいありますか。","answer":"「日本食品標準成分表２０２０年版（八訂）」によると、加工品を含め２，４７８品あります。"},{"question":"牛肉の部位の名称は何によって定められていますか。","answer":"社団法人日本食肉格付協会が定めた牛部分肉取引規格によって定められています。"},{"question":"豚肉と牛肉を比べたとき、豚肉の特徴は何ですか。","answer":"豚肉は出荷される月齢が牛肉より若く、脂肪分の多いばら肉を除き、肉質は比較的均一です。"},{"question":"鶏肉の部位の名称は何によって定められていますか。","answer":"農林水産省が定めた食鶏小売規格によって定められています。"}]},{"title":"पृष्ठ 2 — 肉の保存・調理の注意点 / 鮮度の見分け方","words":[{"question":"肉を加熱すると、なぜ肉が硬くなりますか。","answer":"肉の主成分であるタンパク質が熱によって変性し、縮んで肉汁が流れ出すため硬くなります。"},{"question":"肉が縮んで硬くなるのを防ぐ方法を挙げてください。","answer":"筋をあらかじめ切っておく、肉たたきでたたく、しょうが汁など肉を柔らかくする働きのあるものにつけておく方法があります。"},{"question":"すね肉のような筋の多い肉を柔らかくするにはどうすればよいですか。","answer":"長時間加熱すると、タンパク質の一種であるコラーゲンが分解されて柔らかくなります。"},{"question":"肉のうまみを逃さないための加熱方法は何ですか。","answer":"はじめに強火～中火で加熱して表面を凝固させ、その後、弱火で中まで火を通します。"},{"question":"結着肉（成形肉）を調理するときに注意することは何ですか。","answer":"細菌性食中毒を防止するために、肉の内部までしっかり火を通す必要があります。"},{"question":"新鮮な牛肉の見分け方は何ですか。","answer":"鮮やかな赤色で、赤身と脂身の境目がはっきりしているものが良いです。"},{"question":"冷凍した食肉を解凍するときの正しい方法は何ですか。","answer":"下処理用の容器に移し、食肉・魚介類などの保管区分の冷蔵庫内で緩慢解凍します。ドリップが他の食材や容器を汚染しないようトレイで受けるなどの工夫をします。"}]},{"title":"पृष्ठ 3 — 魚の保存・下ろし方 / 野菜・果実類","words":[{"question":"魚介類の中でもっとも早く傷むのは何ですか。","answer":"貝類がもっとも早く傷みます。"},{"question":"貝類や小魚を冷蔵庫に保存するときの注意点は何ですか。","answer":"温度変化の少ないところに保存します。"},{"question":"三枚おろしとはどのような下ろし方ですか。","answer":"頭を落とし、骨と身を左右に分けて３分割する下ろし方です。"},{"question":"フグを調理するときに注意することは何ですか。","answer":"フグは毒をもっているため、都道府県知事などが認めた専門のフグ処理者が処理する必要があります。"},{"question":"一尾魚を盛り付けるときのポイントは何ですか。","answer":"頭を左、腹を下に盛り付けます。付け合わせは、和食の場合は手前に置きます。"},{"question":"現在、日本の市場で流通する野菜の数はどのくらいですか。","answer":"１５０種類ほどと言われています。"},{"question":"野菜類に一般的に多く含まれる成分は何ですか。","answer":"水分が８０～９０％前後と多く、タンパク質、脂質、炭水化物は少ないです。重要な成分はカリウム、リン、カルシウム、鉄などの無機質、ビタミンＡ、ビタミンＣ、食物繊維です。"},{"question":"ほうれん草など青菜をゆでるときの注意点は何ですか。","answer":"緑色の色素（クロロフィル）が熱に弱いので、たっぷりのお湯で蓋をせずにさっとゆで、水にとって冷まします。"}]},{"title":"पृष्ठ 4 — 野菜の保存 / 国産食材（和牛・伝統野菜）","words":[{"question":"ごぼうやれんこんの切り口の褐変を防ぐにはどうすればよいですか。","answer":"切ったあと、すぐに水につけると切り口の褐変を防ぐことができます。"},{"question":"きゅうりやキャベツを塩でもむとどうなりますか。","answer":"浸透圧の作用で野菜から水分が出てしんなりします。"},{"question":"野菜を保存するときの基本的な方法は何ですか。","answer":"水分の蒸散を抑えるためラップなどに包み冷蔵庫で保存します。また、根や葉をつけておくと身の質が落ちるため、切り離して保存します。"},{"question":"和牛とは何品種を指しますか。","answer":"黒毛和種・褐毛和種・無角和種・日本短角種の４品種とそれらの交雑種のことを指します。"},{"question":"黒毛和牛の特徴は何ですか。","answer":"毛色は黒褐単色で、和牛全体の９５％以上を占め、肉質は特に脂肪交雑（さし）の面で優れています。"},{"question":"伝統野菜（在来野菜）とは何ですか。","answer":"昔から日本で作り続けられている、昔の姿や形のまま栽培が続けられている野菜のことです。地域の食文化に重要な役割を果たしています。"}]},{"title":"पृष्ठ 5 — 下処理の目的 / 野菜・肉の下処理","words":[{"question":"下処理の目的は何ですか。","answer":"調理の前に食材におこなう加工処理で、洗浄、あくをぬく、切れ目を入れる、乾物をもどすなどをおこない、味や食感をよくし、二次汚染を防ぐことが目的です。"},{"question":"調理前の食材に付着しているものは何ですか。","answer":"食中毒菌や腐敗にかかわる微生物が付着しています。"},{"question":"野菜を洗浄するときの基本的な方法は何ですか。","answer":"汚れの少ないものから１枚ずつ水につけて洗い、最後に流水で洗います。葉物は根元を広げるように丁寧に洗います。"},{"question":"じゃがいもやなすのあく抜きはどうしますか。","answer":"冷水につけてあく抜きをします。"},{"question":"れんこんやごぼうを白くするにはどうすればよいですか。","answer":"酢水に入れると白くなります。"},{"question":"肉の下処理で筋に切れ目を入れる理由は何ですか。","answer":"赤身と脂身の間にある筋は加熱により縮み、肉が反り返るので、それを防ぐために切れ目を入れます。"},{"question":"魚のうろこを落とすときの正しい方向は何ですか。","answer":"尾から頭の方向に向かってとります。"}]},{"title":"पृष्ठ 6 — 各調理方法（加熱調理・非加熱調理）","words":[{"question":"調理とは何ですか。","answer":"食材に手を加え、衛生的で安全なものにし、味や香り、口触りをよくして美味しいものにすることです。"},{"question":"「茹でる」とはどのような調理方法ですか。","answer":"多量の水又は熱湯の中で加熱する調理方法です。"},{"question":"「炒める」調理で複数の食材を入れるときの注意点は何ですか。","answer":"熱の通りが遅い具材から先に入れて、熱の入り具合を均等にします。"},{"question":"油の劣化を防ぐための注意点を挙げてください。","answer":"空気になるべくさらさない、長時間の加熱を避ける、直射日光に当てない、不純物を混ぜないことに注意します。"},{"question":"非加熱調理とは何ですか。","answer":"熱を加えずにおこなう調理方法で、混合や撹拌、冷却などがあります。"}]},{"title":"पृष्ठ 7 — 非加熱調理の注意事項 / 調理計画 / 調理機器","words":[{"question":"手で和えるときの正しい衛生対応は何ですか。","answer":"手をよく洗った後に使い捨て手袋を着用します。"},{"question":"生食用冷凍魚介類（刺身用）を解凍するときの注意点は何ですか。","answer":"組織の破壊や汁の流出が起きないよう、なるべく低温で時間をかけて解凍します。"},{"question":"青菜類に生食用の冷凍品がない理由は何ですか。","answer":"色を保持するためブランチング（短時間に６０℃以上の熱を加え酵素を失活させる処理）が必要なため、生食用冷凍品はありません。"},{"question":"調理計画を作成する目的は何ですか。","answer":"次に何をしなければならないかを明確化し、作業の効率化及び料理の品質を維持するためです。"},{"question":"ガスレンジを使うときに必ずしなければならないことは何ですか。","answer":"必ず換気（換気扇・窓）をおこなう必要があります。換気が不十分だと一酸化炭素中毒を起こす恐れがあります。"}]},{"title":"पृष्ठ 8 — 熱機器（スチームコンベクションオーブン・フライヤー等）","words":[{"question":"自動温度調節機能がついている調理機器を確認する方法は何ですか。","answer":"設定温度と実際の温度が一致しているか、非接触温度計で確認します。"},{"question":"スチームコンベクションオーブンの扉を開けるときの注意点は何ですか。","answer":"加熱調理直後の庫内には高温の水蒸気が充満しているため、急にとびらを開けると手や顔にやけどをする恐れがあるので注意が必要です。"},{"question":"フライヤーの油はAV値がいくつ以上のときに交換しますか。","answer":"AV値３．０以上であれば、その日の営業終了時に油を交換します。"},{"question":"立体式炊飯器や卓上炊飯器で炊きあがったライスについて必ずすべきことは何ですか。","answer":"必ず試食し、異常がある場合は提供せずオーダーストップするなどの対応を取ります。"}]},{"title":"पृष्ठ 9 — 冷機器 / 洗浄消毒機器 / 包丁とまな板","words":[{"question":"冷蔵庫・冷凍庫で雑菌が付きやすい場所はどこですか。","answer":"扉、取っ手、扉パッキン、扉下部です。"},{"question":"氷用スコップに菌の付着が多い理由は何ですか。","answer":"不特定多数の人が触れるものだからです。"},{"question":"食器の洗浄機の基本的な洗浄温度とすすぎ温度は何度ですか。","answer":"洗浄温度は６０～７０℃、すすぎ温度は８０～９０℃（リンス剤添加）が基本です。"},{"question":"包丁及びまな板はどのように分類して使い分けますか。","answer":"肉用、野菜用、下処理用などに分類して使い分けます。"},{"question":"柳刃包丁（刺身包丁）は主に何を切るときに使いますか。","answer":"主に刺身を切るときに使用します。"},{"question":"出刃包丁の特徴は何ですか。","answer":"魚をさばくときに使用する包丁で、重みがあり刃に厚みもあるため骨を切ることもできます。"}]},{"title":"पृष्ठ 10 — 容器 / フライパン・鍋 / 計測機器類","words":[{"question":"キッチンポットやボールを洗浄するときに使ってはいけないものは何ですか。","answer":"スチールたわしは絶対に使用してはいけません。"},{"question":"フッ素加工のフライパンを洗うときの注意点は何ですか。","answer":"表面の加工を傷めないよう柔らかいスポンジと中性洗剤で洗い、使用直後の熱いうちに水をかけて急に冷やさないようにします。"},{"question":"鉄フライパンを使用後にする手入れの手順は何ですか。","answer":"たわしなどで洗い、水気をふき取り、中火で加熱して完全に水気をとばし、内側に油をすり込むように塗ります。"},{"question":"計測機器類を定期的に確認する必要がある理由は何ですか。","answer":"精密機械なので汚れや振動が計測の精度に影響を及ぼすことがあるため、正しく計測できているか定期的に確認する必要があります。"}]},{"title":"पृष्ठ 11 — 飲食店の労働災害の発生状況","words":[{"question":"飲食店での労働災害で最も多い事故は何ですか。","answer":"「転倒」で、全体の約３割を占めています。"},{"question":"全産業と比較して飲食店で高い事故の類別は何ですか。","answer":"「切れ・こすれ」、「高温・低温物との接触」が全産業と比較して高く、過去５年間減少していません。"},{"question":"飲食店に特徴的な労働災害の状況は何ですか。","answer":"若年層の労働者が多く、その被災が目立っています。"},{"question":"飲食店における労働安全管理が十分におこなわれていない理由は何ですか。","answer":"「転倒」「切れ・こすれ」が多くを占めているが、法令上の義務付けがないため、安全面からの取組が十分におこなわれていない現状があります。"}]},{"title":"पृष्ठ 12 — 危険の見える化（転倒・切傷の例）","words":[{"question":"「見える化」とは何のためにおこないますか。","answer":"危険認識や作業場の注意喚起を分かりやすく知らせ、より効果的な安全活動をおこなうためです。"},{"question":"転倒の危険を防ぐための基本的な対応は何ですか。","answer":"床を濡れたままにせず、濡れた床をすぐにふき取ります。"},{"question":"切傷の危険がある場所の例を挙げてください。","answer":"包丁、シンク、食用缶、食器などが切傷の危険がある場所の例です。"}]},{"title":"पृष्ठ 13 — 危険の見える化（火傷・腰痛の例）と作業マニュアル","words":[{"question":"厨房で火傷の危険がある場面の例を挙げてください。","answer":"熱い鍋を扱うとき、揚げ物の油を扱うとき、同僚とぶつかったとき、濡れた床でバランスを崩したときなどです。"},{"question":"腰痛を防ぐための荷物の持ち方は何ですか。","answer":"荷物をできるだけ体に近づけて持ちます。体から離して持つと腰痛の危険が高まります。"},{"question":"危険の見える化を職場で実践するための具体的な取り組みを挙げてください。","answer":"作業手順に危険個所を見える化した作業マニュアルを作成する、職場の危険を見える化したハザードマップを作成・掲示・周知する、定期的に従業員へ指導することです。"}]},{"title":"पृष्ठ 14 — 具体的な労働災害防止策 / 食品加工機械の法規制","words":[{"question":"５Ｓ活動とは何ですか。","answer":"整理、整頓、清掃、清潔、習慣の５つのことで、これを徹底することで労働災害防止と作業の効率化が期待できます。"},{"question":"重い荷物を運ぶときの転倒リスク低減の方法は何ですか。","answer":"台車を使う、ひとりでは持たない、何回かに分けて運ぶなどの措置をとります。"},{"question":"刃物を使用するときの注意点は何ですか。","answer":"目線を外さないようにし、使い終わった刃物は指定された場所に片づけます。"},{"question":"フライヤーを使う際に着用すべきものは何ですか。","answer":"長靴、長エプロン、耐熱手袋を着用します。"},{"question":"食品加工用切断機・切削機による危険を防止するための措置は何ですか。","answer":"切断に必要な部分以外の危険な部分に覆いなどを設置し、原材料の送給や取りだし時には機械の運転を停止するか用具などを使用します。"},{"question":"機械の目詰まりの調整時にとるべき原則的な措置は何ですか。","answer":"原則として、機械の運転を停止するなどの措置が義務付けられています。"}]},{"title":"पृष्ठ 15 — 食品の流通","words":[{"question":"食品の流通経路とはどのようなものですか。","answer":"食品が生産者から消費者に届くまでの経路で、生産者から農協などの出荷事業者、卸売市場や食品製造業、食品小売業などを経由して消費者に届きます。"},{"question":"卸売市場が持つ６つの機能は何ですか。","answer":"①集荷、②価格形成、③決済、④情報受発信、⑤災害時対応、⑥衛生の保持です。"},{"question":"飲食店が食材を仕入れる際の仕入先にはどのようなものがありますか。","answer":"①小売店（近隣商店・スーパー）、②業務用専門スーパー、③卸売市場、④卸売業者（通信販売も含む）などがあります。"}]},{"title":"पृष्ठ 16 — 食品添加物とは","words":[{"question":"食品添加物とは何ですか。","answer":"食品の製造過程において、加工や保存の目的で食品に添加されるもののことです。"},{"question":"食品添加物の安全性は誰が確認していますか。","answer":"食品安全基本法に基づき設置された食品安全委員会が動物試験などの結果をもとに評価し、安全性を確認します。"},{"question":"食品添加物には主に何種類ありますか。","answer":"指定添加物、既存添加物、一般飲食物添加物、天然香料の４つの種類があります。"}]},{"title":"पृष्ठ 17 — 添加物の種類と用途","words":[{"question":"甘味料の目的と代表的な品名は何ですか。","answer":"食品に甘味を与えることが目的で、キシリトールやアスパルテームなどがあります。"},{"question":"保存料の目的は何ですか。","answer":"かびや細菌などの発育を抑制し、食品の保存性を向上させることが目的です。"},{"question":"発色剤の目的は何ですか。","answer":"肉類の色調・風味を改善することが目的です。"},{"question":"調味料の目的と代表的な品名は何ですか。","answer":"食品にうまみを与えることが目的で、L-グルタミン酸ナトリウムなどがあります。"}]},{"title":"पृष्ठ 18 — キッチン基本用語（ア～ハ行）","words":[{"question":"「洗い場」とはどのような場所ですか。","answer":"調理場とホールとの接点にあり、主にホールより下がって来た食器の洗浄作業をおこなう場所です。"},{"question":"「キッチンヘルパー」とは何ですか。","answer":"調理場のコックの補佐をする調理補助のことで、ピーク前に各種食材を準備したり、簡単な仕込み作業をおこないます。"},{"question":"「先入れ先出し」とは何ですか。","answer":"検品後に箱に日付を記入したり日付のタグを付けて定位置管理をおこない、古い順に食材を使用するようにローテーションをおこなうことで、鮮度管理の基本となる手法です。"},{"question":"「在庫管理」の重要性は何ですか。","answer":"食材や備品、消耗品の在庫は物に変わっているだけでお金を寝かせていることと同じであり、在庫期間が長いと劣化し品質にも悪影響を与えるため重要です。"}]},{"title":"पृष्ठ 19 — キッチン基本用語（サ～ラ行）","words":[{"question":"「セントラルキッチン（CK）」とは何ですか。","answer":"食材の第一次加工をおこなう集中調理工場のことで、チェーン展開する外食企業が自店の味の均一化とコスト削減を目的として建設します。"},{"question":"「棚卸し」とは何ですか。","answer":"食材や備品、消耗品などの手持ちの数量を各品目ごとに実際に調べ、在庫量と在庫額を把握する作業のことです。"},{"question":"「ポーション」とは何ですか。","answer":"分量のことで、各メニューはメニュー基準表により各食材の分量が決められています。決まった分量より多く付けることをオーバーポーション、逆をアンダーポーションといいます。"},{"question":"「プレバッシング」とは何ですか。","answer":"お客様の食事中に不要となった食器を下げる作業のことで、重要な基本作業の一つです。"}]}];
+
+/* ---------- course registry (ported from the React Native app) ---------- */
+function normalizeVocab(raw){
+  return raw.map(item => ({
+    term: item.term || item.kanji || '',
+    reading: item.reading || item.hiragana || '',
+    meaning: item.meaning || item.nepali || '',
+  }));
+}
+function normalizeVocabPages(rawPages){
+  return rawPages.map(p => ({ title: p.title, words: normalizeVocab(p.words) }));
+}
+function normalizeQAPages(rawPages){
+  return rawPages.map(p => ({ title: p.title, words: p.words.map(w => ({ question: w.question, answer: w.answer })) }));
+}
+
+const COURSES = [
+  { id:'n1-kanji', title:'N1 漢字帳', subtitle:'JLPT N1 · Kanji', icon:'語', levelSize:15, words: normalizeVocab(N1_KANJI_RAW) },
+  { id:'ssw2-food-service', title:'SSW2 Food Service', subtitle:'外食業特定技能２号 · 飲食物調理', icon:'🍳', pages: normalizeVocabPages(SSW2_PAGES_RAW) },
+  { id:'qa-food', title:'Q&A Food', subtitle:'外食業特定技能２号 · प्रश्न-उत्तर अभ्यास', type:'qa', icon:'❓', pages: normalizeQAPages(QA_PAGES_RAW) },
+];
+
+function chunk(arr, size){ const out=[]; for(let i=0;i<arr.length;i+=size) out.push(arr.slice(i,i+size)); return out; }
+function getCourseLevels(course){ return course.pages ? course.pages.map(p=>p.words) : chunk(course.words, course.levelSize||15); }
+function getLevelTitle(course, i){ return (course.pages && course.pages[i]) ? course.pages[i].title : null; }
+function getAllWords(course){ return course.pages ? course.pages.flatMap(p=>p.words) : course.words; }
+function isQACourse(course){ return course.type === 'qa'; }
+function getCourseById(id){ return COURSES.find(c=>c.id===id) || COURSES[0]; }
+
+/* ---------- progress persistence ---------- */
+const STORAGE_KEY = 'n1kanji-notebook-progress';
+let PROGRESS = { courses: {} };
+
+function courseState(courseId){
+  if(!PROGRESS.courses[courseId]) PROGRESS.courses[courseId] = { unlockedLevels:1, clearedLevels:{}, wordStats:{} };
+  return PROGRESS.courses[courseId];
+}
+async function loadProgress(){
+  try{
+    if(window.storage){
+      const res = await window.storage.get(STORAGE_KEY, false);
+      if(res && res.value) PROGRESS = JSON.parse(res.value);
+    } else {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(raw) PROGRESS = JSON.parse(raw);
+    }
+  }catch(e){ /* start fresh */ }
+}
+async function saveProgress(){
+  try{
+    if(window.storage){ await window.storage.set(STORAGE_KEY, JSON.stringify(PROGRESS), false); }
+    else { localStorage.setItem(STORAGE_KEY, JSON.stringify(PROGRESS)); }
+  }catch(e){ /* best effort */ }
+}
+function recordAnswer(courseId, key, correct){
+  const s = courseState(courseId);
+  const cur = s.wordStats[key] || { correct:0, wrong:0 };
+  s.wordStats[key] = correct ? {...cur, correct: cur.correct+1} : {...cur, wrong: cur.wrong+1};
+  saveProgress();
+}
+function markLevelCleared(courseId, levelIndex){
+  const s = courseState(courseId);
+  if(!s.clearedLevels[levelIndex]){ s.clearedLevels[levelIndex] = true; saveProgress(); }
+}
+function unlockNextLevel(courseId, maxLevels){
+  const s = courseState(courseId);
+  if(s.unlockedLevels < maxLevels){ s.unlockedLevels++; saveProgress(); }
+}
+function getCourseStats(courseId, words){
+  const s = courseState(courseId);
+  let mastered=0, learning=0;
+  words.forEach(w=>{
+    const key = w.term || w.question;
+    const st = s.wordStats[key];
+    if(!st) return;
+    if(st.correct>=2 && st.correct>st.wrong) mastered++;
+    else if(st.correct>0 || st.wrong>0) learning++;
+  });
+  return { mastered, learning, total: words.length, untouched: words.length - mastered - learning };
+}
+
+/* ---------- shuffle ---------- */
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+/* ---------- app state ---------- */
+let state = {
+  screen: 'courseSelect',
+  course: null,
+  mode: 'reading',
+  levelIndex: 0,
+  quiz: null, // { words, idx, correctCount, streak, missed, answered, selected, qMode, options, isQA }
+  resultData: null,
+};
+
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(el=>el.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  state.screen = name;
+}
+
+/* ---------- course select ---------- */
+function renderCourseSelect(){
+  const wrap = document.getElementById('courseList');
+  wrap.innerHTML = '';
+  COURSES.forEach(course=>{
+    const levels = getCourseLevels(course);
+    const el = document.createElement('button');
+    el.className = 'course-card';
+    el.style.width = '100%';
+    el.style.border = '1px solid var(--line)';
+    el.style.background = 'var(--card)';
+    el.innerHTML = `
+      <div class="course-icon">${course.icon||'学'}</div>
+      <div style="flex:1; text-align:left;">
+        <div class="course-title">${course.title}</div>
+        <div class="course-sub">${course.subtitle}</div>
+        <div class="course-meta">${getAllWords(course).length} शब्द · ${levels.length} तह</div>
+      </div>
+      <div class="chevron">›</div>
+    `;
+    el.addEventListener('click', ()=>{
+      state.course = course;
+      state.mode = isQACourse(course) ? 'qa' : 'reading';
+      renderHome();
+      showScreen('home');
+    });
+    wrap.appendChild(el);
+  });
+}
+
+/* ---------- home ---------- */
+const MODES = [
+  { key:'reading', label:'漢字 → ひらがな (उच्चारण)' },
+  { key:'meaning', label:'漢字 → अर्थ (नेपाली)' },
+  { key:'mixed', label:'मिसाएर (Mixed)' },
+];
+
+function renderHome(){
+  const course = state.course;
+  const isQA = isQACourse(course);
+  const levels = getCourseLevels(course);
+  const allWords = getAllWords(course);
+  const cs = courseState(course.id);
+  const stats = getCourseStats(course.id, allWords);
+  const unit = isQA ? 'प्रश्न' : 'वाक्यांश';
+
+  document.getElementById('homeBrandMark').textContent = course.icon || '語';
+  document.getElementById('homeTitle').textContent = course.title;
+  document.getElementById('homeSub').textContent = `${course.subtitle} · ${stats.total} ${unit}`;
+  document.getElementById('statMastered').textContent = stats.mastered;
+  document.getElementById('statLearning').textContent = stats.learning;
+  document.getElementById('statNew').textContent = stats.untouched;
+
+  const modeSection = document.getElementById('modeSection');
+  if(isQA){
+    modeSection.style.display = 'none';
+  } else {
+    modeSection.style.display = 'block';
+    const modeList = document.getElementById('modeList');
+    modeList.innerHTML = '';
+    MODES.forEach(m=>{
+      const el = document.createElement('button');
+      el.className = 'mode-opt' + (state.mode===m.key ? ' active' : '');
+      el.style.width = '100%';
+      el.style.textAlign = 'left';
+      el.innerHTML = `<div class="radio"></div><div class="mode-opt-text">${m.label}</div>`;
+      el.addEventListener('click', ()=>{ state.mode = m.key; renderHome(); });
+      modeList.appendChild(el);
+    });
+  }
+
+  const levelList = document.getElementById('levelList');
+  levelList.innerHTML = '';
+  levels.forEach((words, index)=>{
+    const unlocked = index < cs.unlockedLevels;
+    const cleared = !!cs.clearedLevels[index];
+    const pageTitle = getLevelTitle(course, index);
+    const start = index*(course.levelSize||15)+1;
+    const end = start + words.length - 1;
+    const btn = document.createElement('button');
+    btn.className = 'level-card';
+    btn.disabled = !unlocked;
+    btn.innerHTML = `
+      <div class="level-badge${cleared?' cleared':''}">${cleared?'✓':(index+1)}</div>
+      <div class="level-info">
+        <div class="level-title">${pageTitle ? pageTitle : 'तह '+(index+1)}</div>
+        <div class="level-sub">${pageTitle ? words.length+' '+(isQA?'प्रश्न':'शब्द') : 'शब्द '+start+'–'+end}</div>
+      </div>
+      ${unlocked ? '' : '<div class="lock-icon">🔒</div>'}
+    `;
+    if(unlocked){
+      btn.addEventListener('click', ()=> startLevel(index));
+    }
+    levelList.appendChild(btn);
+  });
+}
+
+document.getElementById('btnChangeCourse').addEventListener('click', ()=>{
+  renderCourseSelect();
+  showScreen('courseSelect');
+});
+
+/* ---------- quiz ---------- */
+function buildOptionsByField(correctVal, field, pool){
+  const shuffled = shuffle(pool.filter(w => w[field] && w[field] !== correctVal));
+  const seen = new Set();
+  const distractors = [];
+  for(const w of shuffled){
+    if(distractors.length>=3) break;
+    if(seen.has(w[field])) continue;
+    seen.add(w[field]);
+    distractors.push(w[field]);
+  }
+  return shuffle([correctVal, ...distractors]);
+}
+
+function startLevel(levelIndex){
+  const course = state.course;
+  const isQA = isQACourse(course);
+  const levels = getCourseLevels(course);
+  const words = shuffle(levels[levelIndex]);
+  const allWords = getAllWords(course);
+
+  state.levelIndex = levelIndex;
+  state.quiz = {
+    words, allWords, isQA,
+    idx: 0, correctCount: 0, streak: 0, missed: [],
+    answered: false, selected: null, qMode: null, options: [],
+  };
+  showScreen('quiz');
+  showQuestion();
+}
+
+function currentQMode(){
+  const q = state.quiz;
+  if(q.isQA) return 'qa';
+  if(state.mode==='mixed') return Math.random()<0.5 ? 'reading':'meaning';
+  return state.mode;
+}
+
+function showQuestion(){
+  const q = state.quiz;
+  const course = state.course;
+  q.answered = false; q.selected = null;
+
+  document.getElementById('stamp1').classList.remove('show','wrong');
+  document.getElementById('stamp2').classList.remove('show','wrong');
+  document.getElementById('feedback').classList.remove('show');
+
+  const pct = (q.idx / q.words.length) * 100;
+  document.getElementById('progressFill').style.width = pct+'%';
+  document.getElementById('countPill').textContent = (q.idx+1)+'/'+q.words.length;
+  document.getElementById('streakNum').textContent = q.streak;
+
+  const item = q.words[q.idx];
+  q.qMode = currentQMode();
+  const field = q.isQA ? 'answer' : (q.qMode==='meaning' ? 'meaning' : 'reading');
+  const correctVal = item[field];
+  q.options = buildOptionsByField(correctVal, field, q.allWords);
+
+  const vocabStage = document.getElementById('vocabStage');
+  const qaStage = document.getElementById('qaStage');
+  if(q.isQA){
+    vocabStage.style.display='none'; qaStage.style.display='flex';
+    document.getElementById('qaQuestion').textContent = item.question;
+  } else {
+    qaStage.style.display='none'; vocabStage.style.display='flex';
+    document.getElementById('kanjiTag').textContent = q.qMode==='reading' ? 'यसको उच्चारण छान्नुहोस्' : 'यसको अर्थ छान्नुहोस्';
+    document.getElementById('kanjiBig').textContent = item.term;
+  }
+
+  const wrap = document.getElementById('optionsWrap');
+  wrap.innerHTML = '';
+  q.options.forEach(val=>{
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn' + (q.isQA ? ' qa' : (q.qMode==='meaning' ? ' small nepali' : ''));
+    btn.textContent = val;
+    btn.addEventListener('click', ()=> commitAnswer(val));
+    wrap.appendChild(btn);
+  });
+}
+
+function commitAnswer(pickedVal){
+  const q = state.quiz;
+  const course = state.course;
+  if(q.answered) return;
+  q.answered = true; q.selected = pickedVal;
+
+  const item = q.words[q.idx];
+  const field = q.isQA ? 'answer' : (q.qMode==='meaning' ? 'meaning' : 'reading');
+  const correctVal = item[field];
+  const correct = pickedVal === correctVal;
+
+  document.querySelectorAll('#optionsWrap .opt-btn').forEach(b=>{
+    b.setAttribute('disabled','true');
+    if(b.textContent === correctVal) b.classList.add('correct');
+    else if(b.textContent === pickedVal) b.classList.add('wrong');
+    else b.classList.add('dim');
+  });
+
+  recordAnswer(course.id, item.term || item.question, correct);
+  if(correct){ q.correctCount++; q.streak++; } else { q.streak=0; q.missed.push(item); }
+  document.getElementById('streakNum').textContent = q.streak;
+
+  const stampEl = q.isQA ? document.getElementById('stamp2') : document.getElementById('stamp1');
+  stampEl.textContent = correct ? '合' : '否';
+  stampEl.classList.toggle('wrong', !correct);
+  stampEl.classList.add('show');
+
+  const fbIcon = document.getElementById('fbIcon');
+  const fbTitle = document.getElementById('fbTitle');
+  fbIcon.className = 'fb-icon ' + (correct?'ok':'no');
+  fbIcon.textContent = correct ? '✓' : '✕';
+  fbTitle.className = 'fb-title ' + (correct?'ok':'no');
+  fbTitle.textContent = correct ? 'ठीक छ! सही जवाफ।' : 'अफसोस, सही जवाफ हेर्नुहोस्।';
+  document.getElementById('fbReading').style.display = q.isQA ? 'none' : 'block';
+  document.getElementById('fbReading').textContent = q.isQA ? '' : item.reading;
+  document.getElementById('fbMeaning').textContent = q.isQA ? item.answer : item.meaning;
+  document.getElementById('feedback').classList.add('show');
+}
+
+document.getElementById('btnIdk').addEventListener('click', ()=>{
+  const q = state.quiz;
+  if(q.answered) return;
+  commitAnswer(null);
+});
+
+document.getElementById('btnQuitQuiz').addEventListener('click', ()=>{
+  renderHome();
+  showScreen('home');
+});
+
+document.getElementById('btnNext').addEventListener('click', ()=>{
+  document.getElementById('feedback').classList.remove('show');
+  const q = state.quiz;
+  setTimeout(()=>{
+    q.idx++;
+    if(q.idx >= q.words.length){ finishQuiz(); }
+    else { showQuestion(); }
+  }, 180);
+});
+
+/* ---------- result ---------- */
+function finishQuiz(){
+  const q = state.quiz;
+  const course = state.course;
+  const isQA = q.isQA;
+  const levels = getCourseLevels(course);
+  const levelIndex = state.levelIndex;
+  const total = q.words.length;
+  const pct = Math.round((q.correctCount/total)*100);
+  const perfect = pct === 100;
+  const unit = isQA ? 'प्रश्न' : 'शब्द';
+
+  if(perfect) markLevelCleared(course.id, levelIndex);
+
+  const cs = courseState(course.id);
+  const isFrontier = levelIndex === cs.unlockedLevels - 1;
+  const isLastLevel = levelIndex === levels.length - 1;
+  const eligible = perfect && isFrontier && !isLastLevel;
+
+  document.getElementById('resultPct').textContent = pct+'%';
+  document.getElementById('resultFrac').textContent = q.correctCount+'/'+total;
+  const ring = document.getElementById('resultRing');
+  ring.style.borderColor = pct===100 ? 'var(--moss)' : (pct>=50 ? 'var(--gold)' : 'var(--seal)');
+
+  let title = 'राम्रो प्रयास!';
+  if(pct===100) title='उत्कृष्ट! सबै सही!';
+  else if(pct>=70) title='राम्रो गर्नुभयो!';
+  else if(pct<40) title='फेरि अभ्यास गरौं';
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultSub').textContent = q.missed.length
+    ? q.missed.length+' वटा '+unit+'मा फेरि अभ्यास गर्नुहोस्।'
+    : 'सबै '+unit+' सही भयो, बधाई छ!';
+
+  const unlockWrap = document.getElementById('unlockWrap');
+  unlockWrap.innerHTML = '';
+  if(eligible){
+    const nextTitle = getLevelTitle(course, levelIndex+1);
+    const nextCount = levels[levelIndex+1] ? levels[levelIndex+1].length : 0;
+    const div = document.createElement('div');
+    div.className = 'unlock-card';
+    div.innerHTML = `
+      <div class="unlock-title">तह ${levelIndex+1} पूरा भयो 🎉</div>
+      <div class="unlock-sub">${nextTitle ? `अर्को खण्ड "${nextTitle}" (${nextCount} ${unit}) unlock भयो।` : `अर्को तह (तह ${levelIndex+2}) unlock भयो।`}</div>
+    `;
+    unlockWrap.appendChild(div);
+    unlockNextLevel(course.id, levels.length);
+  }
+
+  const missWrap = document.getElementById('missWrap');
+  missWrap.innerHTML = '';
+  if(q.missed.length){
+    const label = document.createElement('div');
+    label.className = 'miss-label';
+    label.textContent = 'फेरि हेर्नुपर्ने '+unit+'हरू';
+    missWrap.appendChild(label);
+    q.missed.forEach(item=>{
+      const row = document.createElement('div');
+      if(isQA){
+        row.className = 'miss-qa';
+        row.innerHTML = `<div class="miss-qa-q">${item.question}</div><div class="miss-qa-a">${item.answer}</div>`;
+      } else {
+        row.className = 'miss-item';
+        row.innerHTML = `<div class="miss-kanji">${item.term}</div><div class="miss-reading">${item.reading}</div><div class="miss-meaning nepali">${item.meaning}</div>`;
+      }
+      missWrap.appendChild(row);
+    });
+  }
+
+  showScreen('result');
+}
+
+document.getElementById('btnRetry').addEventListener('click', ()=> startLevel(state.levelIndex));
+document.getElementById('btnResultHome').addEventListener('click', ()=>{ renderHome(); showScreen('home'); });
+
+/* ---------- boot ---------- */
+(async function boot(){
+  await loadProgress();
+  renderCourseSelect();
+  showScreen('courseSelect');
+})();
+</script>
+</body>
+</html>
